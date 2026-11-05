@@ -51,7 +51,7 @@ A ausência de WhatsApp é relevante para nós: é justamente onde a Karbo Barbe
 | Controle de caixa | Sim | **Novo** |
 | Controle de custos | Sim (contas a pagar) | **Novo** |
 | Produtos à venda | Sim, com estoque | **Novo** |
-| Comissão por barbeiro | Sim | Não previsto — **decidir** |
+| Comissão por barbeiro | Sim | **Sim — decidido em 05/11**, definida pelo admin para cada barbeiro |
 | Lembrete automático | Push e e-mail | Futuro (WhatsApp API) |
 | Lista de espera | Sim | Fora de escopo |
 | Pagamento online | Sim | Fora de escopo |
@@ -184,7 +184,7 @@ As fases 1 a 4 entregam um sistema de agendamento que já funciona e já tem val
 ## 8. Decisões necessárias
 
 1. **Banco de dados:** seguimos com Supabase? (Recomendação deste documento.)
-2. **Comissão por barbeiro:** entra no escopo? É comum no ramo e afeta o modelo do caixa. Deixar para depois custa uma remodelagem.
+2. ~~**Comissão por barbeiro:** entra no escopo?~~ **Decidido em 05/11: entra.** O administrador define a comissão de cada barbeiro. Especificado na [documentação principal](./DOCUMENTACAO.md), seções 3.5 e 6.6. Resta definir se é percentual ou valor fixo, e se há comissão sobre produto.
 3. **Produtos:** nível 1 (venda simples) ou nível 2 (com estoque)?
 4. **Fidelidade:** compra de produto também pontua, ou só corte?
 5. **Permissões do barbeiro:** pode agendar para colegas? Pode excluir? Vê o caixa?
