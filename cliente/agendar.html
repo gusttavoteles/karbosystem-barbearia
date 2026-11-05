@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agendar horário — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/cliente.css" />
+</head>
+<body>
+  <main class="pagina-cliente">
+    <!-- ============ LINK INVÁLIDO / BARBEARIA INATIVA ============ -->
+    <!-- RF01 depende de um slug válido na URL (?barbearia=<slug>).
+         Sem ele, ou com a barbearia suspensa/cancelada, não há
+         agenda para mostrar — ver js/cliente.js, verificarBarbearia(). -->
+    <section id="tela-erro" style="display: none;">
+      <div class="aviso aviso--erro" id="texto-erro"></div>
+    </section>
+
+    <!-- ============ FLUXO DE AGENDAMENTO (RF01-RF06) ============ -->
+    <div id="tela-agendamento" style="display: none;">
+      <header class="cabecalho-cliente">
+        <img src="../assets/img/icone-fundo-verde.svg" alt="" />
+        <h1 id="texto-nome-barbearia">—</h1>
+        <p class="texto-secundario">Agende seu horário em poucos toques</p>
+      </header>
+
+      <nav class="passos" id="indicador-passos" aria-label="Etapas do agendamento">
+        <span class="passos__item" data-passo="1">Data</span>
+        <span class="passos__item" data-passo="2">Horário</span>
+        <span class="passos__item" data-passo="3">Barbeiro</span>
+        <span class="passos__item" data-passo="4">Seus dados</span>
+      </nav>
+
+      <!-- ===== Passo 1: data (RF01) ===== -->
+      <section class="passo" data-passo="1">
+        <h2 style="margin-bottom: var(--espaco-3);">Escolha o dia</h2>
+        <p class="texto-secundario" style="margin-bottom: var(--espaco-4);">
+          Dias sem nenhum horário livre aparecem apagados.
+        </p>
+        <div class="lista-dias" id="lista-dias"></div>
+      </section>
+
+      <!-- ===== Passo 2: horário (RF02) ===== -->
+      <section class="passo" data-passo="2" style="display: none;">
+        <h2 style="margin-bottom: var(--espaco-1);">Escolha o horário</h2>
+        <p class="texto-secundario" id="texto-data-escolhida" style="margin-bottom: var(--espaco-4);"></p>
+        <div class="grade-horarios" id="grade-horarios"></div>
+        <div class="navegacao-passos">
+          <button type="button" class="botao botao--secundario" data-voltar="1">Voltar</button>
+        </div>
+      </section>
+
+      <!-- ===== Passo 3: barbeiro (RF01) ===== -->
+      <section class="passo" data-passo="3" style="display: none;">
+        <h2 style="margin-bottom: var(--espaco-1);">Escolha o profissional</h2>
+        <p class="texto-secundario" id="texto-horario-escolhido" style="margin-bottom: var(--espaco-4);"></p>
+        <div class="lista-barbeiros-publico" id="lista-barbeiros-publico"></div>
+        <div class="navegacao-passos">
+          <button type="button" class="botao botao--secundario" data-voltar="2">Voltar</button>
+        </div>
+      </section>
+
+      <!-- ===== Passo 4: dados do cliente (RF03) ===== -->
+      <section class="passo" data-passo="4" style="display: none;">
+        <h2 style="margin-bottom: var(--espaco-4);">Seus dados</h2>
+        <form id="formulario-cliente-publico">
+          <div class="campo">
+            <label for="campo-nome-publico">Nome</label>
+            <input type="text" id="campo-nome-publico" required placeholder="Seu nome" />
+          </div>
+          <div class="campo">
+            <label for="campo-telefone-publico">Telefone (WhatsApp)</label>
+            <input type="tel" id="campo-telefone-publico" required placeholder="(62) 99999-9999" />
+          </div>
+          <div class="campo">
+            <label for="campo-nascimento-publico">Data de nascimento</label>
+            <input type="date" id="campo-nascimento-publico" />
+            <span class="texto-secundario">Opcional — avisamos no seu aniversário.</span>
+          </div>
+          <div class="navegacao-passos">
+            <button type="button" class="botao botao--secundario" data-voltar="3">Voltar</button>
+            <button type="submit" class="botao botao--primario">Ver resumo</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ===== Passo 5: resumo + confirmação pelo WhatsApp (RF04/RF05) ===== -->
+      <section class="passo" data-passo="5" style="display: none;">
+        <h2 style="margin-bottom: var(--espaco-4);">Confirme seu agendamento</h2>
+        <div class="resumo-agendamento" id="resumo-final"></div>
+        <p class="texto-secundario" style="margin-bottom: var(--espaco-4);">
+          Toque no botão abaixo para enviar a confirmação pelo WhatsApp da barbearia —
+          é esse envio que garante o seu horário.
+        </p>
+        <a id="link-whatsapp-final" class="botao botao--whatsapp botao--bloco" target="_blank" rel="noopener">
+          Confirmar pelo WhatsApp
+        </a>
+        <div class="navegacao-passos">
+          <button type="button" class="botao botao--secundario botao--bloco" data-voltar="4">Voltar e corrigir</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============ CONFIRMADO ============ -->
+    <div id="tela-confirmado" style="display: none;">
+      <div class="confirmacao-final">
+        <div class="confirmacao-final__icone">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6L9 17l-5-5" /></svg>
+        </div>
+        <h2 style="margin-bottom: var(--espaco-2);">Horário reservado!</h2>
+        <p class="texto-secundario" style="margin-bottom: var(--espaco-5);">
+          Se o WhatsApp não abriu sozinho, toque no botão abaixo para confirmar.
+        </p>
+        <a id="link-whatsapp-confirmado" class="botao botao--whatsapp botao--bloco" target="_blank" rel="noopener">Abrir WhatsApp</a>
+        <button type="button" class="botao botao--secundario botao--bloco espaco-acima" id="botao-novo-agendamento-publico">
+          Agendar outro horário
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/agenda.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/cliente.js"></script>
+</body>
+</html>

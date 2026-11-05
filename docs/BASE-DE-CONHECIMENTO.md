@@ -38,9 +38,12 @@ js/auth.js          → sessão do administrador (simulada, ver seção 3)
 js/whatsapp.js       → monta os links wa.me (ver seção 4)
 js/fidelidade.js     → regras do cartão fidelidade acima dos dados crus (ver seção 5)
 js/finalizacao.js    → orquestra os efeitos de finalizar um atendimento (ver seção 6)
+js/agenda.js         → cálculo de horário livre e conflito (ver seção 6.1) — usado pelo admin E pela tela pública
 js/admin.js          → código comum a toda tela do painel (barra, toast) — ver seção 7
 js/cadastros.js       → lógica só da tela admin/cadastros.html
 js/dashboard.js      → lógica só da tela admin/proximos-dias.html
+js/novo-agendamento.js → lógica só da tela admin/novo-agendamento.html
+js/cliente.js        → lógica só da tela pública cliente/agendar.html (NÃO carrega admin.js — não há sessão)
 ```
 
 Cada script de tela (`cadastros.js`, `dashboard.js`, ...) é carregado
@@ -73,6 +76,7 @@ diferentes.
 |---|---|
 | `listarBarbearias()` | Lista todas as barbearias cadastradas no sistema (uso do super-admin e da tela de login simulada). |
 | `obterBarbearia(barbeariaId)` | Devolve uma barbearia pelo id, ou `null`. |
+| `obterBarbeariaPorSlug(slug)` | Devolve uma barbearia pelo `slug` do link público, ou `null`. Única função de barbearia que NÃO exige `barbeariaId` — é o ponto de entrada de quem ainda não o conhece (a tela pública, que só tem o slug da URL). |
 | `obterConfiguracoes(barbeariaId)` | Devolve o registro de configurações daquela barbearia (meta de fidelidade, duração padrão, textos de WhatsApp, etc.) — ver seção 4 de `DOCUMENTACAO.md`. |
 | `salvarConfiguracoes(barbeariaId, dados)` | Substitui as configurações daquela barbearia. |
 | `listarBarbeiros(barbeariaId)` | Lista os barbeiros daquela barbearia. |
@@ -132,7 +136,8 @@ personalizou.
 
 | Função | Uso |
 |---|---|
-| `linkConfirmacaoParaCliente(configuracoes, dadosAgendamento)` | Botão **Confirmar** da lista de próximos dias. |
+| `linkConfirmacaoParaCliente(configuracoes, dadosAgendamento)` | Botão **Confirmar** da lista de próximos dias — ADMIN escrevendo PARA o cliente. |
+| `linkAgendamentoParaBarbearia(configuracoes, telefoneBarbearia, dadosAgendamento)` | RF04 — o CLIENTE escrevendo PARA a barbearia, ao terminar o agendamento público. Usa `configuracoes.mensagemConfirmacao` (não confundir com `mensagemLembrete`, usada na função acima). |
 | `linkConversaComCliente(telefoneCliente)` | Botão **Conversa**, quando o agendamento já está confirmado. |
 | `linkAniversario(configuracoes, nome, telefone)` | Reservado para a tela de aniversariantes (fase 12 — ainda não construída). |
 
@@ -167,6 +172,29 @@ precisar mudar**.
 
 ---
 
+## 6.1 `js/agenda.js` — cálculo de horário livre e conflito
+
+Centraliza a conta de "quais horários estão livres", usada por DUAS
+telas que precisam exatamente da mesma regra: o encaixe manual do
+admin (`novo-agendamento.html`) e o agendamento público do cliente
+(`cliente/agendar.html`). Antes de existir este arquivo, cada tela
+tinha a própria cópia da conta — risco real de uma ser corrigida e a
+outra não (ver "bugs já encontrados" na seção 10).
+
+| Função | O que faz |
+|---|---|
+| `formatarDataIsoCurta(data)` | `Date` → texto `"AAAA-MM-DD"` no fuso LOCAL (nunca usar `date.toISOString()` para isto — ela passa por UTC e pode voltar o dia errado perto da meia-noite). |
+| `horariosLivres(barbeariaId, barbeiroId, dataTexto, duracaoMin, configuracoes)` | Horários livres de UM barbeiro, num dia: dentro da jornada dele naquele dia da semana, em passos do tamanho do atendimento, sem bater no horário exato de outro agendamento ativo dele, e respeitando a antecedência mínima configurada. Devolve uma lista de `"HH:MM"`. |
+| `horariosLivresTodosBarbeiros(barbeariaId, dataTexto, duracaoMin, configuracoes)` | A UNIÃO dos horários livres de todos os barbeiros daquela barbearia — usada no passo 2 da tela pública, porque ali o cliente ainda não escolheu barbeiro (RF01: a ordem é data → horário → barbeiro). |
+| `barbeirosLivresNoHorario(barbeariaId, dataTexto, horaTexto, duracaoMin, configuracoes)` | Os barbeiros que estão livres EXATAMENTE naquele horário — usada no passo 3 da tela pública, para listar só quem pode atender. |
+| `diaTemHorarioLivre(barbeariaId, dataTexto, duracaoMin, configuracoes)` | `true`/`false` — se existe ao menos um horário livre, de algum barbeiro, naquele dia. Usada para desabilitar dias sem nenhuma vaga no seletor de data da tela pública (RF01). |
+
+A regra de conflito usada aqui é a mesma da regra 3 da seção 6 de
+`DOCUMENTACAO.md`: só compara o horário **exato** de início, não a
+sobreposição de intervalos (ver pendência conhecida na seção 10).
+
+---
+
 ## 7. `js/admin.js` — comum a toda tela do painel
 
 Toda página do painel (atualmente `cadastros.html` e
@@ -198,7 +226,75 @@ cliente chegaria direto por um link com o identificador da barbearia
 pasta de propósito, para o GitHub Pages/qualquer host estático
 reconhecer como página inicial.**
 
-### 8.2 `admin/login.html`
+### 8.2 `cliente/agendar.html` + `js/cliente.js` — tela pública (RF01-RF06)
+
+A única tela do sistema sem login — qualquer pessoa com o link da
+barbearia chega aqui. Na documentação o endereço é `/b/<slug>`; como
+esta hospedagem é de arquivos estáticos (sem servidor para reescrever
+essa rota), o endereço real é
+`cliente/agendar.html?barbearia=<slug>` — é esse o link que o botão
+**Copiar link** do dashboard (seção 8.4) copia.
+
+**Se o link está errado:** sem o parâmetro `barbearia`, com um slug
+que não existe, ou com a barbearia suspensa/cancelada (`status !==
+"ATIVA"`), a tela mostra só um aviso de erro — nunca o formulário.
+
+**O fluxo tem 5 passos, nesta ordem exata (RF01: "data → horário →
+barbeiro", depois dados e confirmação):**
+
+1. **Data** — uma faixa horizontal com os próximos dias (até
+   `configuracoes.antecedenciaMaximaDias`). Um dia aparece
+   desabilitado quando NENHUM barbeiro tem vaga nele
+   (`Agenda.diaTemHorarioLivre`) — RF01. A duração usada em toda a
+   conta é a duração padrão da barbearia
+   (`configuracoes.duracaoPadraoMin`): esta tela **não tem seleção de
+   serviço** (diferente da tela do admin) — segue estritamente o que
+   a seção 8 de `DOCUMENTACAO.md` descreve para o cliente.
+2. **Horário** — mostra a UNIÃO dos horários livres de TODOS os
+   barbeiros naquele dia (`Agenda.horariosLivresTodosBarbeiros`),
+   porque o cliente ainda não escolheu quem vai atender.
+3. **Barbeiro** — só os barbeiros livres EXATAMENTE naquele horário
+   (`Agenda.barbeirosLivresNoHorario`) — pode ser só um, se só um
+   barbeiro tiver aquela vaga.
+4. **Seus dados** (RF03) — nome e telefone obrigatórios, nascimento
+   opcional. Ao enviar o formulário, o sistema já **grava o cliente e
+   o agendamento** (`criarOuObterCliente` + `criarAgendamento`, com
+   `origem: "LINK"`, `servicoId: null`) — ver a nota abaixo sobre por
+   que é neste momento, e não só ao abrir o WhatsApp.
+5. **Resumo + confirmação** (RF04) — mostra barbearia, data, horário,
+   barbeiro e cliente, e o botão **Confirmar pelo WhatsApp**, que
+   abre o `wa.me` do NÚMERO DA BARBEARIA (não do cliente — é o
+   cliente mandando mensagem pra barbearia, o inverso do botão
+   "Confirmar" do admin) com a mensagem de
+   `configuracoes.mensagemConfirmacao`. Ao tocar, a tela muda para
+   "Horário reservado!", com o mesmo link disponível de novo (caso a
+   aba do WhatsApp não tenha aberto ou tenha sido fechada sem enviar).
+
+**Por que o agendamento é gravado no passo 4, e não ao abrir o
+WhatsApp (RF05 fala em "gravado no envio da mensagem"):** o link
+`wa.me` não avisa o sistema se a mensagem foi realmente enviada (
+limitação já registrada na seção 9 de `DOCUMENTACAO.md`), então não
+existe um jeito confiável de "saber que enviou" para gravar só
+depois. Gravar ao fim do formulário é o ponto mais próximo disso que
+dá pra implementar — e é a mesma leitura sugerida pela questão em
+aberto nº 6 do próprio documento ("o horário já fica reservado"
+mesmo que o cliente não chegue a mandar a mensagem).
+
+**Botão "Voltar e corrigir" do passo 5:** como o agendamento já foi
+criado no passo 4, voltar para corrigir um dado **cancela** esse
+agendamento (`Dados.cancelarAgendamento`) antes de mostrar o
+formulário de novo — senão, reenviar o formulário criaria um SEGUNDO
+agendamento, duplicando a reserva. Os outros botões "Voltar" (passos
+2 e 3) não tocam em dado nenhum, porque nesses passos ainda não existe
+agendamento criado.
+
+**Isolamento:** o telefone do formulário é buscado/criado dentro da
+`barbeariaId` da URL. O mesmo telefone usado no link de uma barbearia
+não tem nenhuma relação com o cadastro dele em outra (regra 2 da
+seção 6 de `DOCUMENTACAO.md`) — ver seção 6.1 acima para a conta de
+horário livre, compartilhada com `admin/novo-agendamento.html`.
+
+### 8.3 `admin/login.html`
 
 Tela de "login" simulado (ver seção 3). Mostra uma lista (`<select>`)
 com as barbearias cadastradas (`Dados.listarBarbearias()`).
@@ -208,7 +304,7 @@ com as barbearias cadastradas (`Dados.listarBarbearias()`).
 | `#campo-barbearia` | Lista de barbearias, preenchida ao carregar a página. |
 | Botão **Entrar** (submit do `#formulario-login`) | Chama `Auth.entrarComoAdmin(barbeariaId)` e redireciona para `proximos-dias.html` (a tela inicial do painel). |
 
-### 8.3 `admin/proximos-dias.html` + `js/dashboard.js` — tela inicial do painel
+### 8.4 `admin/proximos-dias.html` + `js/dashboard.js` — tela inicial do painel
 
 A tela que o administrador vê ao entrar. Mostra o panorama do dia e dos
 próximos dias, e é de onde ele confirma, cancela e finaliza
@@ -216,7 +312,7 @@ atendimentos.
 
 **Menu lateral** (`.menu-lateral`):
 - **Início** — link real, leva a esta própria tela (`aria-current="page"`).
-- **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.4).
+- **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.5).
 - **Agenda mensal**, **Clientes e fidelidade** — ainda não construídas (fases seguintes do roadmap). São `<button>` com `data-acao="em-construcao"`, que mostram um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
 - **Cadastros** — link real, leva a `cadastros.html`.
 - Rodapé: link público de agendamento (texto + botão **Copiar link**, que copia `origin + "/b/" + slug` para a área de transferência via `navigator.clipboard`), bloco com o nome do administrador, e botão **Sair** (comportamento vem de `admin.js`).
@@ -224,7 +320,7 @@ atendimentos.
 **Cabeçalho** (`.cabecalho-painel`):
 - Data de hoje e saudação (Bom dia/Boa tarde/Boa noite, calculada pela hora real do navegador).
 - `#texto-resumo`: frase com quantos atendimentos aguardam finalização e quantos horários dos próximos 3 dias ainda faltam confirmar.
-- Botão **Novo agendamento** — link real para `admin/novo-agendamento.html` (seção 8.4). O mesmo link existe no menu lateral.
+- Botão **Novo agendamento** — link real para `admin/novo-agendamento.html` (seção 8.5). O mesmo link existe no menu lateral.
 
 **Filtros:**
 - **Chips de barbeiro** (`#chips-barbeiro`): "Todos" + um chip por barbeiro da barbearia logada, cada um com a contagem de atendimentos ativos e futuros daquele barbeiro. Clicar troca `estadoDashboard.barbeiroId` e redesenha a tela inteira (indicadores, lista, aguardando, calendário — tudo que depende do filtro).
@@ -257,7 +353,7 @@ atendimentos.
 - Mês atual, com cada dia colorido por intensidade conforme a quantidade de agendamentos daquele dia (considerando o filtro de barbeiro). Clicar num dia muda o resumo embaixo (`#texto-dia-selecionado` / `#texto-resumo-dia-selecionado`) — **não** muda a aba "Próximos 3 dias" acima, são seleções independentes.
 - Botão **Abrir agenda** → `data-acao="em-construcao"` (tela "Agenda mensal" ainda não construída).
 
-### 8.4 `admin/novo-agendamento.html` + `js/novo-agendamento.js`
+### 8.5 `admin/novo-agendamento.html` + `js/novo-agendamento.js`
 
 Tela para o administrador encaixar manualmente um cliente na agenda
 (RF08), sem passar pelo link público. Aberta pelos botões **Novo
@@ -290,7 +386,7 @@ precise mostrar um toast depois de redirecionar para outra página siga
 este mesmo padrão** (chave própria no `sessionStorage`, lida e
 IMEDIATAMENTE removida pela tela de destino).
 
-### 8.5 `admin/cadastros.html` + `js/cadastros.js`
+### 8.6 `admin/cadastros.html` + `js/cadastros.js`
 
 Tela de cadastro de barbeiros, serviços e clientes, em 3 abas
 (`.abas`/`.abas__item`, uma só visível por vez via classe `.ativo`).
@@ -307,7 +403,7 @@ Todas as três abas usam o mesmo padrão: formulário no topo, submit cria
 e redesenha a lista (`renderizarBarbeiros`/`renderizarServicos`/
 `renderizarClientes`), sem recarregar a página.
 
-### 8.6 Telas ainda não construídas
+### 8.7 Telas ainda não construídas
 
 `cliente/`, `barbeiro/` e `super-admin/` existem como pastas vazias
 (`.gitkeep`) — reservadas pela estrutura de pastas de `DOCUMENTACAO.md`
@@ -378,13 +474,23 @@ lote de trabalho.
   mostram apenas um aviso.
 - `finalizadoPor` (quem registrou a finalização) fica `null` — depende
   de autenticação real de barbeiro (fase 5).
-- O cálculo de conflito de horário (em `dados.js` e em
-  `novo-agendamento.js`) só compara o horário **exato** de início —
-  não detecta sobreposição parcial entre atendimentos de durações
-  diferentes (ex.: um corte de 50 min às 09:00 e outro de 30 min às
-  09:20 não seriam pegos como conflito). Documentado desde a regra 3
-  da seção 6 de `DOCUMENTACAO.md`; vale resolver antes de ligar um
-  banco real.
+- O cálculo de conflito de horário (em `dados.js` e em `agenda.js`)
+  só compara o horário **exato** de início — não detecta sobreposição
+  parcial entre atendimentos de durações diferentes (ex.: um corte de
+  50 min às 09:00 e outro de 30 min às 09:20 não seriam pegos como
+  conflito). Documentado desde a regra 3 da seção 6 de
+  `DOCUMENTACAO.md`; vale resolver antes de ligar um banco real.
+- A tela pública (`cliente/agendar.html`) não tem passo de escolha de
+  **serviço** — usa sempre a duração padrão da barbearia. Fiel ao que
+  a seção 8 de `DOCUMENTACAO.md` descreve para o cliente, mas significa
+  que hoje não há como o cliente pedir, por exemplo, "Corte + Barba"
+  em vez de "Corte" pelo link público (ele pode, pelo WhatsApp, pedir
+  o serviço que quiser — o sistema só não registra qual).
+- O endereço público real é `cliente/agendar.html?barbearia=<slug>`,
+  não `/b/<slug>` como a documentação descreve — esta hospedagem é de
+  arquivos estáticos, sem servidor para reescrever rotas. Quando um
+  backend de verdade entrar (fase 5), vale decidir se a rota bonita
+  `/b/<slug>` passa a existir de verdade.
 
 **Bugs já encontrados pelos testes e corrigidos:**
 - `Dados.ehStatusAtivo` existia dentro de `dados.js`, mas não estava na

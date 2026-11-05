@@ -1,0 +1,254 @@
+/*
+  cliente.css
+  -----------
+  Estilo da tela pública de agendamento (cliente/agendar.html), a
+  única tela do sistema pensada PRIMEIRO para celular — é lá que o
+  cliente vai acessar o link (RNF "responsivo e mobile-first").
+
+  Depende das variáveis de base.css e dos componentes de
+  componentes.css — carregar sempre depois dos dois.
+*/
+
+/* ---------------------------------------------------------------
+   1. Página e cabeçalho da barbearia
+   ------------------------------------------------------------- */
+.pagina-cliente {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: var(--espaco-5) var(--espaco-4) var(--espaco-8);
+}
+
+.cabecalho-cliente {
+  text-align: center;
+  margin-bottom: var(--espaco-5);
+}
+
+.cabecalho-cliente img {
+  height: 40px;
+  margin: 0 auto var(--espaco-3);
+}
+
+.cabecalho-cliente h1 {
+  font-size: 20px;
+}
+
+/* ---------------------------------------------------------------
+   2. Indicador de passos (Data · Horário · Barbeiro · Seus dados)
+   ------------------------------------------------------------- */
+.passos {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: var(--espaco-5);
+}
+
+.passos__item {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+  position: relative;
+  padding-top: var(--espaco-5);
+}
+
+.passos__item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+}
+
+.passos__item.concluido::before {
+  background-color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+}
+
+.passos__item.atual {
+  color: var(--cor-texto);
+}
+
+.passos__item.atual::before {
+  border-color: var(--cor-primaria);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cor-primaria) 25%, transparent);
+}
+
+/* ---------------------------------------------------------------
+   3. Passo: data — lista horizontal de dias, com os sem vaga
+   desabilitados (RF01)
+   ------------------------------------------------------------- */
+.lista-dias {
+  display: flex;
+  gap: var(--espaco-2);
+  overflow-x: auto;
+  padding-bottom: var(--espaco-2);
+  margin: 0 calc(-1 * var(--espaco-4));
+  padding-left: var(--espaco-4);
+  padding-right: var(--espaco-4);
+  -webkit-overflow-scrolling: touch;
+}
+
+.dia-opcao {
+  flex: 0 0 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--espaco-3) var(--espaco-2);
+  border-radius: var(--raio-padrao);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  cursor: pointer;
+}
+
+.dia-opcao__semana {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--cor-texto-secundario);
+}
+
+.dia-opcao__numero {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.dia-opcao[aria-pressed="true"] {
+  background-color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+}
+.dia-opcao[aria-pressed="true"] .dia-opcao__semana {
+  color: var(--cor-primaria-texto);
+  opacity: 0.8;
+}
+
+.dia-opcao:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------------------
+   4. Passo: horário — grade de chips
+   ------------------------------------------------------------- */
+.grade-horarios {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: var(--espaco-2);
+}
+
+.horario-opcao {
+  padding: var(--espaco-3);
+  text-align: center;
+  border-radius: var(--raio-padrao);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.horario-opcao[aria-pressed="true"] {
+  background-color: var(--cor-primaria);
+  border-color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+}
+
+/* ---------------------------------------------------------------
+   5. Passo: barbeiro — cartões selecionáveis
+   ------------------------------------------------------------- */
+.lista-barbeiros-publico {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+.barbeiro-opcao {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-4);
+  border-radius: var(--raio-padrao);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  text-align: left;
+  cursor: pointer;
+}
+
+.barbeiro-opcao__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--cor-fundo-elevado);
+  color: var(--cor-primaria);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.barbeiro-opcao[aria-pressed="true"] {
+  border-color: var(--cor-primaria);
+  background-color: color-mix(in srgb, var(--cor-primaria) 12%, var(--cor-fundo-superficie));
+}
+
+/* ---------------------------------------------------------------
+   6. Resumo do agendamento (passo 4 e tela de confirmação)
+   ------------------------------------------------------------- */
+.resumo-agendamento {
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-padrao);
+  padding: var(--espaco-4);
+  margin-bottom: var(--espaco-4);
+}
+
+.resumo-agendamento__linha {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--espaco-2) 0;
+  border-bottom: 1px solid var(--cor-borda);
+}
+.resumo-agendamento__linha:last-child {
+  border-bottom: none;
+}
+
+/* ---------------------------------------------------------------
+   7. Navegação entre passos
+   ------------------------------------------------------------- */
+.navegacao-passos {
+  display: flex;
+  gap: var(--espaco-3);
+  margin-top: var(--espaco-5);
+}
+.navegacao-passos > .botao {
+  flex: 1;
+}
+
+/* ---------------------------------------------------------------
+   8. Tela de confirmação final (depois de agendar)
+   ------------------------------------------------------------- */
+.confirmacao-final {
+  text-align: center;
+  padding: var(--espaco-6) 0;
+}
+
+.confirmacao-final__icone {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: var(--cor-sucesso-fundo);
+  color: var(--cor-sucesso);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--espaco-4);
+}

@@ -53,6 +53,29 @@ const Whatsapp = (function () {
     return montarLink(dadosAgendamento.telefoneCliente, texto);
   }
 
+  /** RF04: mensagem que o CLIENTE envia para o WhatsApp da
+   *  BARBEARIA ao terminar o agendamento pelo link público —
+   *  diferente de linkConfirmacaoParaCliente, que é o admin
+   *  escrevendo PARA o cliente. Usa o texto configurado
+   *  (mensagemConfirmacao) ou o padrão sugerido na seção 9 da
+   *  documentação. */
+  function linkAgendamentoParaBarbearia(configuracoes, telefoneBarbearia, dadosAgendamento) {
+    const modeloPadrao =
+      "Olá! Gostaria de confirmar meu agendamento: dia {{dataFormatada}} às {{hora}} " +
+      "com o barbeiro {{barbeiro}}.";
+
+    const modelo = (configuracoes && configuracoes.mensagemConfirmacao) || modeloPadrao;
+
+    const texto = substituirMarcadores(modelo, {
+      dataFormatada: dadosAgendamento.dataFormatada,
+      hora: dadosAgendamento.hora,
+      barbeiro: dadosAgendamento.nomeBarbeiro,
+      nomeCliente: dadosAgendamento.nomeCliente,
+    });
+
+    return montarLink(telefoneBarbearia, texto);
+  }
+
   /** Link para abrir a conversa já existente com o cliente, sem um
    *  texto novo — usado quando o agendamento já está confirmado e
    *  só se quer continuar a conversa (botão "Conversa"). */
@@ -80,6 +103,7 @@ const Whatsapp = (function () {
   return {
     montarLink,
     linkConfirmacaoParaCliente,
+    linkAgendamentoParaBarbearia,
     linkConversaComCliente,
     linkAniversario,
   };

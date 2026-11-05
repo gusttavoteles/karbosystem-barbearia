@@ -279,6 +279,15 @@ const Dados = (function () {
     return carregar().barbearias.find((b) => b.id === barbeariaId) || null;
   }
 
+  /** Busca uma barbearia pelo slug do link público (RF01:
+   *  `/b/<slug-da-barbearia>`, servido neste sistema como
+   *  `cliente/agendar.html?barbearia=<slug>`). Não exige
+   *  barbeariaId — é exatamente o ponto de entrada de quem AINDA
+   *  não sabe o id, só o slug que está na URL. */
+  function obterBarbeariaPorSlug(slug) {
+    return carregar().barbearias.find((b) => b.slug === slug) || null;
+  }
+
   /* ---------------------------------------------------------------
      Configurações (seção 4 e 7.2 da documentação)
      ------------------------------------------------------------- */
@@ -825,6 +834,7 @@ const Dados = (function () {
 
     listarBarbearias,
     obterBarbearia,
+    obterBarbeariaPorSlug,
 
     obterConfiguracoes,
     salvarConfiguracoes,

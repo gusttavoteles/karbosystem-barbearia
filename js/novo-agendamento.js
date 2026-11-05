@@ -16,7 +16,9 @@
        naquele dia da semana, sem conflito com outro agendamento
        ativo do mesmo barbeiro).
 
-  Depende de js/admin.js (sessaoAdmin, mostrarToast, escaparHtml).
+  Depende de js/admin.js (sessaoAdmin, mostrarToast, escaparHtml) e
+  de js/agenda.js (Agenda.horariosLivres — a mesma conta de horário
+  livre usada aqui e na tela pública do cliente).
 */
 
 if (sessaoAdmin) {
@@ -52,13 +54,13 @@ function inicializarFormulario() {
   // passou. (A antecedência mínima em horas, configurável por
   // barbearia, é aplicada mais abaixo, ao listar os horários do dia.)
   const campoData = document.getElementById("campo-data");
-  campoData.min = formatarDataIsoCurta(new Date());
+  campoData.min = Agenda.formatarDataIsoCurta(new Date());
 
   const configuracoes = Dados.obterConfiguracoes(barbeariaId);
   if (configuracoes && configuracoes.antecedenciaMaximaDias) {
     const maxima = new Date();
     maxima.setDate(maxima.getDate() + configuracoes.antecedenciaMaximaDias);
-    campoData.max = formatarDataIsoCurta(maxima);
+    campoData.max = Agenda.formatarDataIsoCurta(maxima);
   }
 
   inicializarCampoTelefone();
@@ -67,15 +69,6 @@ function inicializarFormulario() {
   });
 
   document.getElementById("formulario-agendamento").addEventListener("submit", criarAgendamentoManual);
-}
-
-/** "AAAA-MM-DD" de um objeto Date, no fuso local (não usar
- *  toISOString() aqui — ela converte para UTC e pode voltar um dia). */
-function formatarDataIsoCurta(data) {
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, "0");
-  const dia = String(data.getDate()).padStart(2, "0");
-  return ano + "-" + mes + "-" + dia;
 }
 
 /* ---------------------------------------------------------------
@@ -140,7 +133,7 @@ function atualizarHorariosDisponiveis() {
   const configuracoes = Dados.obterConfiguracoes(barbeariaId);
   const duracaoMin = (servico && servico.duracaoMin) || (configuracoes && configuracoes.duracaoPadraoMin) || 30;
 
-  const horarios = horariosLivres(barbeariaId, barbeiroId, dataTexto, duracaoMin, configuracoes);
+  const horarios = Agenda.horariosLivres(barbeariaId, barbeiroId, dataTexto, duracaoMin, configuracoes);
 
   if (horarios.length === 0) {
     selectHorario.innerHTML = '<option value="" disabled selected>Nenhum horário livre</option>';
@@ -162,57 +155,6 @@ function atualizarHorariosDisponiveis() {
   });
   selectHorario.disabled = false;
   campoHorario.textContent = horarios.length + " horário(s) livre(s), de " + duracaoMin + " minutos cada.";
-}
-
-/** Calcula os horários livres de um barbeiro, num dia específico,
- *  para um serviço de `duracaoMin` minutos: dentro da jornada de
- *  trabalho dele naquele dia da semana (js/dados.js,
- *  listarHorarios), em intervalos do tamanho do próprio serviço, e
- *  sem bater no horário exato de outro agendamento ativo dele
- *  (mesma regra de conflito usada por Dados.criarAgendamento).
- *  Devolve uma lista de textos "HH:MM". */
-function horariosLivres(barbeariaId, barbeiroId, dataTexto, duracaoMin, configuracoes) {
-  const [ano, mes, dia] = dataTexto.split("-").map(Number);
-  const dataBase = new Date(ano, mes - 1, dia);
-  const diaSemana = dataBase.getDay();
-
-  const jornadas = Dados.listarHorarios(barbeariaId, barbeiroId).filter(
-    (h) => h.diaSemana === diaSemana
-  );
-  if (jornadas.length === 0) return [];
-
-  const agendamentosDoDia = Dados.listarAgendamentos(barbeariaId, {
-    barbeiroId,
-    desde: dataBase,
-    ate: new Date(ano, mes - 1, dia + 1),
-  }).filter((a) => Dados.ehStatusAtivo(a.status));
-
-  const agora = new Date();
-  const antecedenciaMinimaHoras = (configuracoes && configuracoes.antecedenciaMinimaHoras) || 0;
-  const limiteMinimo = new Date(agora.getTime() + antecedenciaMinimaHoras * 60 * 60 * 1000);
-
-  const livres = [];
-  jornadas.forEach((jornada) => {
-    const [horaInicioH, horaInicioM] = jornada.horaInicio.split(":").map(Number);
-    const [horaFimH, horaFimM] = jornada.horaFim.split(":").map(Number);
-
-    let inicioSlot = new Date(ano, mes - 1, dia, horaInicioH, horaInicioM, 0, 0);
-    const fimJornada = new Date(ano, mes - 1, dia, horaFimH, horaFimM, 0, 0);
-
-    while (inicioSlot.getTime() + duracaoMin * 60 * 1000 <= fimJornada.getTime()) {
-      const ocupado = agendamentosDoDia.some(
-        (a) => new Date(a.dataHora).getTime() === inicioSlot.getTime()
-      );
-      if (!ocupado && inicioSlot >= limiteMinimo) {
-        livres.push(
-          String(inicioSlot.getHours()).padStart(2, "0") + ":" + String(inicioSlot.getMinutes()).padStart(2, "0")
-        );
-      }
-      inicioSlot = new Date(inicioSlot.getTime() + duracaoMin * 60 * 1000);
-    }
-  });
-
-  return livres;
 }
 
 /* ---------------------------------------------------------------

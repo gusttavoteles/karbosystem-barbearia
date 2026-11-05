@@ -46,7 +46,12 @@ function inicializarCabecalho() {
   const saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
   document.getElementById("texto-saudacao").textContent = saudacao;
 
-  const linkPublico = window.location.origin + "/b/" + barbearia.slug;
+  // O endereço "oficial" do link público, na documentação, é
+  // /b/<slug> — mas esta é uma hospedagem de arquivos estáticos
+  // (sem servidor para reescrever essa rota), então o link real
+  // aponta para cliente/agendar.html, lendo o slug pela URL (ver
+  // js/cliente.js, inicializar()).
+  const linkPublico = window.location.origin + "/cliente/agendar.html?barbearia=" + barbearia.slug;
   const elementoLink = document.getElementById("texto-link-publico");
   elementoLink.textContent = linkPublico;
 
