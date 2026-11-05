@@ -28,13 +28,6 @@ const estadoDashboard = {
   diaCalendarioSelecionado: new Date().getDate(),
 };
 
-if (sessaoAdmin) {
-  inicializarCabecalho();
-  inicializarFiltros();
-  tratarBotoesEmConstrucao();
-  renderizarTudo();
-}
-
 /* ---------------------------------------------------------------
    Cabeçalho: saudação, data e link público
    ------------------------------------------------------------- */
@@ -684,4 +677,15 @@ function renderizarMiniCalendario(barbeariaId, agendamentosFiltrados) {
     nomeDiaSemana.charAt(0).toUpperCase() + nomeDiaSemana.slice(1) + ", " + dataCurta(dataSel) + (ehHojeSel ? " · hoje" : "");
   document.getElementById("texto-resumo-dia-selecionado").textContent =
     contagemSel === 0 ? "Sem atendimentos" : plural(contagemSel, "agendamento", "agendamentos");
+}
+
+/* ---------------------------------------------------------------
+   Início: só agora, com todas as funções e constantes acima já
+   declaradas, é seguro rodar a primeira renderização da tela.
+   ------------------------------------------------------------- */
+if (sessaoAdmin) {
+  inicializarCabecalho();
+  inicializarFiltros();
+  tratarBotoesEmConstrucao();
+  renderizarTudo();
 }
