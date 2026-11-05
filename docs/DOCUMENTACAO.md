@@ -1,7 +1,7 @@
 # Karbo System — Sistema de Agendamento para Barbearia
 
-**Versão do documento:** 0.1 (escopo inicial)
-**Data:** 03/11/2026
+**Versão do documento:** 0.2 (stack definida: HTML, CSS e JavaScript)
+**Data:** 05/11/2026
 **Repositório:** https://github.com/gusttavoteles/karbosystem-barbearia
 
 ---
@@ -133,7 +133,7 @@ AGENDADO → CONFIRMADO → REALIZADO
 
 ## 6. Modelo de dados
 
-Banco relacional (sugestão: PostgreSQL).
+O modelo abaixo é **relacional e independente de tecnologia**. O banco de dados ainda será escolhido; o SQL serve como referência das tabelas, campos e regras, e pode ser adaptado ao banco definido.
 
 ```sql
 CREATE TABLE usuarios (
@@ -268,30 +268,81 @@ Exemplo de mensagem de confirmação (admin → cliente):
 
 ---
 
-## 10. Stack sugerida
+## 10. Stack e padrões de desenvolvimento
 
-A stack ainda não está definida. Sugestão para começar rápido:
+### 10.1 Tecnologias
 
-| Camada | Sugestão |
+| Camada | Definição |
 |---|---|
-| Frontend | Next.js (React) + Tailwind CSS |
-| Backend | API do próprio Next.js ou Node.js (Express/Fastify) |
-| Banco de dados | PostgreSQL (ex.: Supabase, Neon ou Railway) |
-| ORM | Prisma |
-| Autenticação | NextAuth/Auth.js ou JWT |
-| Hospedagem | Vercel (app) + banco gerenciado |
+| Frontend | **HTML, CSS e JavaScript** (sem frameworks) |
+| Banco de dados | **A definir** (decisão adiada; ver 10.4) |
+| Identidade visual | Paleta de cores e logos da Karbo System já definidas (arquivos no projeto) |
 
----
+### 10.2 Padrões de código
+
+- **Arquivos separados** por responsabilidade: HTML só estrutura, CSS só estilo, JS só comportamento. Nada de CSS ou JS dentro do HTML.
+- **Todo código comentado:** cada função deve ter um comentário dizendo o que ela faz dentro do sistema.
+- Nomes de arquivos, funções e variáveis em português ou inglês, mas **sempre no mesmo padrão** em todo o projeto.
+
+### 10.3 Estrutura de pastas proposta
+
+```
+karbosystem-barbearia/
+├── docs/
+│   └── DOCUMENTACAO.md
+├── index.html                  # Entrada: redireciona para o agendamento do cliente
+├── cliente/
+│   └── agendar.html            # Fluxo público: data → horário → barbeiro
+├── admin/
+│   ├── login.html
+│   ├── proximos-dias.html      # Próximos 3 dias + botão Confirmar (WhatsApp)
+│   ├── agenda.html             # Agenda mensal
+│   ├── novo-agendamento.html   # Inclusão manual
+│   ├── clientes.html           # Clientes e fidelidade
+│   └── cadastros.html          # Barbeiros, serviços e horários
+├── barbeiro/
+│   └── atendimentos.html       # Confirmar "Realizado" / "Não compareceu"
+├── css/
+│   ├── base.css                # Variáveis (paleta), reset e tipografia
+│   ├── componentes.css         # Botões, cards, formulários, calendário
+│   ├── cliente.css
+│   ├── admin.css
+│   └── barbeiro.css
+├── js/
+│   ├── config.js               # Número do WhatsApp, meta da fidelidade, regras
+│   ├── dados.js                # Camada de dados (único arquivo que fala com o banco)
+│   ├── agenda.js               # Regras de horários livres e conflitos
+│   ├── whatsapp.js             # Geração dos links wa.me e das mensagens
+│   ├── fidelidade.js           # Pontos, saldo e resgates
+│   ├── utils.js                # Datas, telefone, formatação
+│   ├── cliente.js
+│   ├── admin.js
+│   └── barbeiro.js
+└── assets/
+    ├── img/                    # Logos e ícones
+    └── fonts/
+```
+
+### 10.4 Banco de dados: decisão adiada
+
+Como o banco ainda não foi escolhido, o projeto isola o acesso a dados:
+
+- **Todo acesso ao banco passa por `js/dados.js`.** As demais telas e regras só chamam funções desse arquivo (por exemplo `listarAgendamentos(data)`, `criarAgendamento(dados)`, `lancarPonto(agendamentoId)`).
+- Na fase inicial, `dados.js` pode usar **dados de teste em memória ou `localStorage`**, só para desenvolver e validar as telas.
+- Quando o banco for escolhido, **só o `dados.js` é reescrito**; o resto do sistema não muda.
+
+**Ponto de atenção:** `localStorage` guarda dados apenas no navegador de cada pessoa. Ele serve para protótipo, mas **não funciona em produção**, porque o cliente e o administrador precisam enxergar a mesma agenda. Em produção, o sistema precisa de um banco compartilhado, acessado por um serviço (backend próprio ou um serviço de banco na nuvem). Isso também é necessário para proteger o painel com login e para impedir agendamentos duplicados no mesmo horário.
 
 ## 11. Roadmap por versões
 
 | Versão | Entregas |
 |---|---|
-| **v0.1** | Estrutura do projeto, banco de dados e cadastros (barbeiros, serviços, horários). |
+| **v0.1** | Estrutura de pastas, identidade visual (`base.css`), camada de dados provisória (`dados.js`) e cadastros (barbeiros, serviços, horários). |
 | **v0.2** | Fluxo do cliente: data → horário → barbeiro → WhatsApp. |
 | **v0.3** | Painel do admin: login, próximos 3 dias com botão de confirmação, agenda mensal. |
 | **v0.4** | Inclusão e exclusão manual de agendamentos. |
 | **v0.5** | Finalização pelo barbeiro e cartão fidelidade automático. |
+| **v0.6** | Escolha e integração do banco de dados definitivo (troca do `dados.js`) e login real. |
 | **v1.0** | Ajustes, testes, deploy em produção. |
 | **Futuro** | Lembretes automáticos (WhatsApp API), relatórios, múltiplos serviços por agendamento, resgate de prêmios com histórico. |
 
