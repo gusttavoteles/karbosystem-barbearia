@@ -688,4 +688,28 @@ if (sessaoAdmin) {
   inicializarFiltros();
   tratarBotoesEmConstrucao();
   renderizarTudo();
+  mostrarAvisoPendente();
+}
+
+/** Mostra, ao chegar nesta tela, o aviso deixado por outra tela que
+ *  redirecionou para aqui (hoje, só admin/novo-agendamento.html, ao
+ *  criar um agendamento). O aviso vem com o instantâneo de ANTES da
+ *  ação, para o botão "Desfazer" funcionar mesmo depois do
+ *  redirecionamento — ver js/novo-agendamento.js. */
+function mostrarAvisoPendente() {
+  const bruto = sessionStorage.getItem("karbo_aviso_pendente");
+  if (!bruto) return;
+  sessionStorage.removeItem("karbo_aviso_pendente");
+
+  let aviso;
+  try {
+    aviso = JSON.parse(bruto);
+  } catch (erro) {
+    return;
+  }
+
+  mostrarToast(aviso.mensagem, () => {
+    Dados.restaurarInstantaneo(sessaoAdmin.barbeariaId, aviso.instantaneo);
+    renderizarTudo();
+  });
 }

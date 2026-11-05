@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Novo agendamento — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <!-- Barra superior: igual à das outras telas do painel (ver
+       js/admin.js) — mostra a barbearia logada e o botão Sair. -->
+  <header class="barra-topo">
+    <div class="barra-topo__identidade">
+      <img src="../assets/img/icone-fundo-verde.svg" alt="Karbo Barber" style="height: 28px;" />
+      <span class="barra-topo__barbearia" id="texto-barbearia-logada">—</span>
+    </div>
+    <nav class="barra-topo__nav">
+      <a href="proximos-dias.html" class="barra-topo__link">Início</a>
+      <a href="cadastros.html" class="barra-topo__link">Cadastros</a>
+    </nav>
+    <button class="botao botao--secundario botao--pequeno" id="botao-sair">Sair</button>
+  </header>
+
+  <main class="pagina" style="max-width: 640px;">
+    <a href="proximos-dias.html" class="texto-secundario" style="display: inline-flex; align-items: center; gap: 4px; text-decoration: none;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
+      Voltar para o início
+    </a>
+
+    <h1 class="espaco-acima" style="margin-bottom: 4px;">Novo agendamento</h1>
+    <p class="texto-secundario" style="margin-bottom: var(--espaco-5);">
+      Encaixe manualmente um cliente na agenda — por telefone, presencialmente ou
+      quando o combinado não veio pelo link público (RF08).
+    </p>
+
+    <div class="aviso aviso--erro" id="aviso-erro" style="display: none;"></div>
+
+    <form id="formulario-agendamento">
+      <!-- ===================== CLIENTE ===================== -->
+      <div class="card">
+        <h3 class="card__titulo">Cliente</h3>
+
+        <div class="campo">
+          <label for="campo-telefone">Telefone (WhatsApp)</label>
+          <input type="tel" id="campo-telefone" required placeholder="(62) 99999-9999" />
+          <span class="texto-secundario" id="texto-status-cliente">
+            Digite o telefone — se o cliente já tiver cadastro nesta barbearia, o nome aparece sozinho.
+          </span>
+        </div>
+
+        <div class="campo" id="campo-nome-wrapper">
+          <label for="campo-nome">Nome</label>
+          <input type="text" id="campo-nome" required placeholder="Ex.: João Pedro" />
+        </div>
+
+        <div class="campo" id="campo-nascimento-wrapper">
+          <label for="campo-nascimento">Data de nascimento</label>
+          <input type="date" id="campo-nascimento" />
+          <span class="texto-secundario">Opcional — usada na tela de aniversariantes.</span>
+        </div>
+      </div>
+
+      <!-- ===================== SERVIÇO E BARBEIRO ===================== -->
+      <div class="card">
+        <h3 class="card__titulo">Serviço e profissional</h3>
+
+        <div class="linha-formulario">
+          <div class="campo">
+            <label for="campo-servico">Serviço</label>
+            <select id="campo-servico" required>
+              <option value="" disabled selected>Escolha um serviço</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="campo-barbeiro">Barbeiro</label>
+            <select id="campo-barbeiro" required>
+              <option value="" disabled selected>Escolha um barbeiro</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===================== DATA E HORÁRIO ===================== -->
+      <div class="card">
+        <h3 class="card__titulo">Data e horário</h3>
+
+        <div class="linha-formulario">
+          <div class="campo">
+            <label for="campo-data">Data</label>
+            <input type="date" id="campo-data" required />
+          </div>
+          <div class="campo">
+            <label for="campo-horario">Horário</label>
+            <select id="campo-horario" required disabled>
+              <option value="" disabled selected>Escolha serviço, barbeiro e data</option>
+            </select>
+            <span class="texto-secundario" id="texto-status-horario"></span>
+          </div>
+        </div>
+      </div>
+
+      <button type="submit" class="botao botao--primario botao--bloco">Criar agendamento</button>
+    </form>
+  </main>
+
+  <!-- Aviso (toast) de retorno, compartilhado por todas as telas do
+       painel — ver js/admin.js, mostrarToast(). -->
+  <div id="toast" class="toast" style="display: none;">
+    <span data-toast-texto></span>
+    <button data-toast-desfazer class="botao botao--secundario botao--pequeno" style="display: none;">Desfazer</button>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/fidelidade.js"></script>
+  <script src="../js/finalizacao.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/novo-agendamento.js"></script>
+</body>
+</html>

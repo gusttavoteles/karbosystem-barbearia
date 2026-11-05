@@ -88,7 +88,7 @@ diferentes.
 | `criarOuObterCliente(barbeariaId, dados)` | Cria o cliente se o telefone ainda não existir naquela barbearia, ou devolve o já existente. Usado no futuro fluxo público de agendamento (fase 2/3), para não duplicar cliente a cada agendamento. |
 | `listarAgendamentos(barbeariaId, filtros)` | Lista agendamentos, com filtros opcionais `{ barbeiroId, desde, ate }` (`desde`/`ate` são `Date`). Sempre ordenado por data/hora crescente. |
 | `obterAgendamento(barbeariaId, agendamentoId)` | Devolve um agendamento. |
-| `ehStatusAtivo(status)` | `true` para `AGENDADO` ou `CONFIRMADO` — os únicos status que ainda "ocupam" um horário. |
+| `ehStatusAtivo(status)` | `true` para `AGENDADO` ou `CONFIRMADO` — os únicos status que ainda "ocupam" um horário. Exportada na API pública (foi um bug pego pelos testes de `novo-agendamento.html`: a função existia mas não estava na lista de retorno do módulo — ver seção 10). |
 | `criarAgendamento(barbeariaId, dados)` | Cria um agendamento com status inicial `AGENDADO`. Lança erro se o barbeiro já tiver outro agendamento ativo no mesmo horário exato. |
 | `confirmarAgendamento(barbeariaId, agendamentoId)` | Muda o status para `CONFIRMADO` (RF12 — depois que o cliente respondeu no WhatsApp). |
 | `cancelarAgendamento(barbeariaId, agendamentoId)` | Muda o status para `CANCELADO`, liberando o horário. |
@@ -216,14 +216,15 @@ atendimentos.
 
 **Menu lateral** (`.menu-lateral`):
 - **Início** — link real, leva a esta própria tela (`aria-current="page"`).
-- **Agenda mensal**, **Novo agendamento**, **Clientes e fidelidade** — ainda não construídas (fases seguintes do roadmap). São `<button>` com `data-acao="em-construcao"`, que mostram um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
+- **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.4).
+- **Agenda mensal**, **Clientes e fidelidade** — ainda não construídas (fases seguintes do roadmap). São `<button>` com `data-acao="em-construcao"`, que mostram um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
 - **Cadastros** — link real, leva a `cadastros.html`.
 - Rodapé: link público de agendamento (texto + botão **Copiar link**, que copia `origin + "/b/" + slug` para a área de transferência via `navigator.clipboard`), bloco com o nome do administrador, e botão **Sair** (comportamento vem de `admin.js`).
 
 **Cabeçalho** (`.cabecalho-painel`):
 - Data de hoje e saudação (Bom dia/Boa tarde/Boa noite, calculada pela hora real do navegador).
 - `#texto-resumo`: frase com quantos atendimentos aguardam finalização e quantos horários dos próximos 3 dias ainda faltam confirmar.
-- Botão **Novo agendamento** (também `data-acao="em-construcao"`, mesma tela ainda não construída).
+- Botão **Novo agendamento** — link real para `admin/novo-agendamento.html` (seção 8.4). O mesmo link existe no menu lateral.
 
 **Filtros:**
 - **Chips de barbeiro** (`#chips-barbeiro`): "Todos" + um chip por barbeiro da barbearia logada, cada um com a contagem de atendimentos ativos e futuros daquele barbeiro. Clicar troca `estadoDashboard.barbeiroId` e redesenha a tela inteira (indicadores, lista, aguardando, calendário — tudo que depende do filtro).
@@ -256,7 +257,40 @@ atendimentos.
 - Mês atual, com cada dia colorido por intensidade conforme a quantidade de agendamentos daquele dia (considerando o filtro de barbeiro). Clicar num dia muda o resumo embaixo (`#texto-dia-selecionado` / `#texto-resumo-dia-selecionado`) — **não** muda a aba "Próximos 3 dias" acima, são seleções independentes.
 - Botão **Abrir agenda** → `data-acao="em-construcao"` (tela "Agenda mensal" ainda não construída).
 
-### 8.4 `admin/cadastros.html` + `js/cadastros.js`
+### 8.4 `admin/novo-agendamento.html` + `js/novo-agendamento.js`
+
+Tela para o administrador encaixar manualmente um cliente na agenda
+(RF08), sem passar pelo link público. Aberta pelos botões **Novo
+agendamento** do dashboard (cabeçalho e menu lateral).
+
+**Cliente:**
+- Campo **Telefone**: a cada tecla, busca `Dados.buscarClientePorTelefone` NA barbearia logada. Se achar, preenche e esconde o campo **Nome** (e o de nascimento) — mostra "Cliente já cadastrado: &lt;nome&gt;.". Se não achar, mostra os campos **Nome** (obrigatório) e **Data de nascimento** (opcional) para cadastrar na hora.
+- O mesmo telefone pode já existir em OUTRA barbearia sem problema — telefone é único só dentro de cada barbearia (regra 2 da seção 6 de `DOCUMENTACAO.md`), então aqui ele é tratado como cliente novo.
+
+**Serviço e barbeiro:**
+- `#campo-servico`: lista os serviços da barbearia (`Dados.listarServicos`). A duração usada no cálculo de horários é a do serviço (`servico.duracaoMin`) ou, se o serviço não tiver duração própria, a duração padrão configurada pela barbearia (`configuracoes.duracaoPadraoMin`).
+- `#campo-barbeiro`: lista os barbeiros da barbearia (`Dados.listarBarbeiros`).
+
+**Data e horário:**
+- `#campo-data`: mínimo é hoje; máximo (se configurado) é `configuracoes.antecedenciaMaximaDias` a partir de hoje.
+- `#campo-horario` só fica habilitado depois que serviço, barbeiro e data estão todos escolhidos. A lista de horários é calculada por `horariosLivres()` em `novo-agendamento.js`: pega a jornada do barbeiro NAQUELE dia da semana (`Dados.listarHorarios`), gera posições a cada "duração do serviço" minutos dentro da jornada, descarta as que batem no horário exato de outro agendamento ativo do mesmo barbeiro (mesma regra 3 da seção 6 — conflito por horário exato, não por sobreposição de intervalo) e as anteriores à antecedência mínima configurada (`configuracoes.antecedenciaMinimaHoras`).
+  - Se o barbeiro **nunca teve horário cadastrado** (lista vazia em qualquer dia), o aviso diz isso e sugere a aba Cadastros.
+  - Se o barbeiro tem horário, mas não naquele dia da semana, ou todos os horários daquele dia já estão ocupados, o aviso diz que não há horário livre naquela data.
+- Botão **Criar agendamento**: valida telefone e nome, chama `Dados.criarOuObterCliente` e depois `Dados.criarAgendamento` (status inicial `AGENDADO`, `origem: "MANUAL"`), e redireciona para `proximos-dias.html`.
+
+**Retorno ao dashboard:** como a confirmação (toast) é mostrada na tela
+de destino, não nesta, o aviso é passado por `sessionStorage`
+(`karbo_aviso_pendente`, lido e apagado por `dashboard.js`,
+`mostrarAvisoPendente()`), junto com o instantâneo tirado ANTES da
+criação — assim o **Desfazer** do toast funciona mesmo depois do
+redirecionamento. Desfazer remove o agendamento criado; se um cliente
+novo foi cadastrado junto, o cadastro dele permanece (como ficaria num
+sistema real ao apagar só o agendamento). **Qualquer tela nova que
+precise mostrar um toast depois de redirecionar para outra página siga
+este mesmo padrão** (chave própria no `sessionStorage`, lida e
+IMEDIATAMENTE removida pela tela de destino).
+
+### 8.5 `admin/cadastros.html` + `js/cadastros.js`
 
 Tela de cadastro de barbeiros, serviços e clientes, em 3 abas
 (`.abas`/`.abas__item`, uma só visível por vez via classe `.ativo`).
@@ -273,14 +307,16 @@ Todas as três abas usam o mesmo padrão: formulário no topo, submit cria
 e redesenha a lista (`renderizarBarbeiros`/`renderizarServicos`/
 `renderizarClientes`), sem recarregar a página.
 
-### 8.5 Telas ainda não construídas
+### 8.6 Telas ainda não construídas
 
 `cliente/`, `barbeiro/` e `super-admin/` existem como pastas vazias
 (`.gitkeep`) — reservadas pela estrutura de pastas de `DOCUMENTACAO.md`
 §11.3, para as fases seguintes do roadmap (fluxo público de
-agendamento, área do barbeiro, e painel do super-admin). Qualquer botão
-do painel que apontaria para uma tela destas fases usa
-`data-acao="em-construcao"` em vez de um link quebrado.
+agendamento, área do barbeiro, e painel do super-admin). Dentro do
+painel do administrador, "Agenda mensal" e "Clientes e fidelidade"
+também ainda não existem. Qualquer botão que apontaria para uma tela
+destas fases usa `data-acao="em-construcao"` em vez de um link
+quebrado.
 
 ---
 
@@ -338,7 +374,25 @@ lote de trabalho.
 - Excluir um barbeiro não avisa nem impede a exclusão se ele tiver
   agendamentos futuros.
 - O botão **Resgatar** fidelidade não tem Desfazer.
-- "Agenda mensal", "Novo agendamento manual" e "Clientes e fidelidade"
-  ainda não são telas reais — mostram apenas um aviso.
+- "Agenda mensal" e "Clientes e fidelidade" ainda não são telas reais —
+  mostram apenas um aviso.
 - `finalizadoPor` (quem registrou a finalização) fica `null` — depende
   de autenticação real de barbeiro (fase 5).
+- O cálculo de conflito de horário (em `dados.js` e em
+  `novo-agendamento.js`) só compara o horário **exato** de início —
+  não detecta sobreposição parcial entre atendimentos de durações
+  diferentes (ex.: um corte de 50 min às 09:00 e outro de 30 min às
+  09:20 não seriam pegos como conflito). Documentado desde a regra 3
+  da seção 6 de `DOCUMENTACAO.md`; vale resolver antes de ligar um
+  banco real.
+
+**Bugs já encontrados pelos testes e corrigidos:**
+- `Dados.ehStatusAtivo` existia dentro de `dados.js`, mas não estava na
+  lista de funções exportadas no `return` final do módulo — qualquer
+  tela que tentasse chamá-la (como `novo-agendamento.js`) recebia
+  `TypeError: Dados.ehStatusAtivo is not a function`. Corrigido
+  adicionando-a à API pública. **Lição:** ao adicionar uma função
+  dentro de `dados.js`, sempre adicioná-la também na lista `return {
+  ... }` no final do arquivo — e testar chamando-a de uma tela, não só
+  de rodar `node --check` (que só confere sintaxe, não a lista de
+  exportação).

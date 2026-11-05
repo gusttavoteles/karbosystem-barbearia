@@ -851,6 +851,7 @@ const Dados = (function () {
 
     listarAgendamentos,
     obterAgendamento,
+    ehStatusAtivo,
     criarAgendamento,
     confirmarAgendamento,
     cancelarAgendamento,
