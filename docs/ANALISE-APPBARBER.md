@@ -183,7 +183,7 @@ As fases 1 a 4 entregam um sistema de agendamento que já funciona e já tem val
 
 ## 8. Decisões necessárias
 
-1. **Banco de dados:** seguimos com Supabase? (Recomendação deste documento.)
+1. ~~**Banco de dados:** seguimos com Supabase?~~ **Reforçado em 05/11:** sim, e agora com um motivo a mais — o sistema passou a ser **multiusuário** (várias barbearias em uma só instalação, decisão registrada na [documentação principal](./DOCUMENTACAO.md), seção 2). O Supabase suporta isolamento por linha (Row Level Security), que é o mecanismo indicado para impedir uma barbearia de ler dado de outra.
 2. ~~**Comissão por barbeiro:** entra no escopo?~~ **Decidido em 05/11: entra.** O administrador define a comissão de cada barbeiro. Especificado na [documentação principal](./DOCUMENTACAO.md), seções 3.5 e 6.6. Resta definir se é percentual ou valor fixo, e se há comissão sobre produto.
 3. **Produtos:** nível 1 (venda simples) ou nível 2 (com estoque)?
 4. **Fidelidade:** compra de produto também pontua, ou só corte?
