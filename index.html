@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Karbo Barber</title>
+  <link rel="icon" href="assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/componentes.css" />
+  <style>
+    /* Estilo exclusivo desta página de entrada: ela não tem um
+       css próprio porque é só uma porta, não uma tela de verdade. */
+    .porta {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--espaco-5);
+      text-align: center;
+      padding: var(--espaco-5);
+    }
+    .porta img {
+      width: 96px;
+      margin-bottom: var(--espaco-3);
+    }
+  </style>
+</head>
+<body>
+  <!--
+    Esta página de entrada é provisória. Em produção (fase 2 em
+    diante), o link do cliente vem com o identificador da barbearia
+    na própria URL (ex.: karbobarber.com.br/b/barbearia-do-carlos,
+    ver seção 2.1 da documentação), e cada barbearia divulga o seu
+    link — ninguém chega por este index.html.
+    Por enquanto, ele só direciona para o painel do administrador,
+    que é o que existe construído na fase 1.
+  -->
+  <main class="porta">
+    <img src="assets/img/icone-fundo-verde.svg" alt="Karbo Barber" />
+    <div>
+      <h1>Karbo Barber</h1>
+      <p class="texto-secundario">Sistema de agendamento e gestão para barbearias.</p>
+    </div>
+    <a class="botao botao--primario" href="admin/login.html">Entrar no painel</a>
+  </main>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastros — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <!-- Barra superior: mostra qual barbearia está logada, para deixar
+       claro, a todo momento, dentro de qual "caixa" isolada estamos. -->
+  <header class="barra-topo">
+    <div class="barra-topo__identidade">
+      <img src="../assets/img/icone-fundo-verde.svg" alt="Karbo Barber" style="height: 28px;" />
+      <span class="barra-topo__barbearia" id="texto-barbearia-logada">—</span>
+    </div>
+    <button class="botao botao--secundario botao--pequeno" id="botao-sair">Sair</button>
+  </header>
+
+  <main class="pagina">
+    <h1>Cadastros</h1>
+    <p class="texto-secundario espaco-acima" style="margin-bottom: var(--espaco-5);">
+      Barbeiros (com a comissão de cada um), serviços, horários de
+      trabalho e clientes desta barbearia.
+    </p>
+
+    <!-- Abas: cada uma mostra um cadastro diferente. -->
+    <nav class="abas">
+      <button class="abas__item ativo" data-aba="barbeiros">Barbeiros</button>
+      <button class="abas__item" data-aba="servicos">Serviços</button>
+      <button class="abas__item" data-aba="clientes">Clientes</button>
+    </nav>
+
+    <!-- ===================== ABA: BARBEIROS ===================== -->
+    <section class="aba__painel ativo" data-painel="barbeiros">
+      <div class="card">
+        <h3 class="card__titulo">Novo barbeiro</h3>
+        <form id="formulario-barbeiro">
+          <div class="campo">
+            <label for="barbeiro-nome">Nome</label>
+            <input type="text" id="barbeiro-nome" required placeholder="Ex.: Carlos Mendes" />
+          </div>
+
+          <div class="linha-formulario">
+            <div class="campo">
+              <label for="barbeiro-comissao-tipo">Tipo de comissão</label>
+              <select id="barbeiro-comissao-tipo">
+                <option value="PERCENTUAL">Percentual do valor do serviço</option>
+                <option value="FIXO">Valor fixo por atendimento</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label for="barbeiro-comissao-valor" id="rotulo-comissao-valor">Percentual (%)</label>
+              <input type="number" id="barbeiro-comissao-valor" min="0" step="0.01" value="40" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="barbeiro-comissao-produto">Comissão sobre produto vendido (%)</label>
+            <input type="number" id="barbeiro-comissao-produto" min="0" step="0.01" value="0" />
+            <span class="texto-secundario">Deixe 0 se este barbeiro não ganha comissão por produto.</span>
+          </div>
+
+          <button type="submit" class="botao botao--primario">Adicionar barbeiro</button>
+        </form>
+      </div>
+
+      <h3 class="espaco-acima" style="margin-bottom: var(--espaco-3);">Equipe cadastrada</h3>
+      <div id="lista-barbeiros"></div>
+    </section>
+
+    <!-- ===================== ABA: SERVIÇOS ===================== -->
+    <section class="aba__painel" data-painel="servicos">
+      <div class="card">
+        <h3 class="card__titulo">Novo serviço</h3>
+        <form id="formulario-servico">
+          <div class="campo">
+            <label for="servico-nome">Nome</label>
+            <input type="text" id="servico-nome" required placeholder="Ex.: Corte + Barba" />
+          </div>
+
+          <div class="linha-formulario">
+            <div class="campo">
+              <label for="servico-duracao">Duração (minutos)</label>
+              <input type="number" id="servico-duracao" min="5" step="5" placeholder="Usa o padrão da barbearia" />
+              <span class="texto-secundario">Em branco, usa a duração padrão definida em Configurações.</span>
+            </div>
+            <div class="campo">
+              <label for="servico-preco">Preço (R$)</label>
+              <input type="number" id="servico-preco" min="0" step="0.01" required />
+            </div>
+          </div>
+
+          <button type="submit" class="botao botao--primario">Adicionar serviço</button>
+        </form>
+      </div>
+
+      <h3 class="espaco-acima" style="margin-bottom: var(--espaco-3);">Serviços cadastrados</h3>
+      <div id="lista-servicos"></div>
+    </section>
+
+    <!-- ===================== ABA: CLIENTES ===================== -->
+    <section class="aba__painel" data-painel="clientes">
+      <div class="card">
+        <h3 class="card__titulo">Novo cliente</h3>
+        <form id="formulario-cliente">
+          <div class="campo">
+            <label for="cliente-nome">Nome</label>
+            <input type="text" id="cliente-nome" required placeholder="Ex.: João Pedro" />
+          </div>
+
+          <div class="linha-formulario">
+            <div class="campo">
+              <label for="cliente-telefone">Telefone (WhatsApp)</label>
+              <input type="tel" id="cliente-telefone" required placeholder="(62) 99999-9999" />
+            </div>
+            <div class="campo">
+              <label for="cliente-nascimento">Data de nascimento</label>
+              <input type="date" id="cliente-nascimento" />
+              <span class="texto-secundario">Opcional — usada na tela de aniversariantes.</span>
+            </div>
+          </div>
+
+          <button type="submit" class="botao botao--primario">Adicionar cliente</button>
+        </form>
+      </div>
+
+      <h3 class="espaco-acima" style="margin-bottom: var(--espaco-3);">Clientes cadastrados</h3>
+      <div id="lista-clientes"></div>
+    </section>
+  </main>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/admin.js"></script>
+</body>
+</html>

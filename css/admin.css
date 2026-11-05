@@ -1,0 +1,74 @@
+/*
+  admin.css
+  ---------
+  Estilos específicos do painel do administrador da barbearia.
+  Depende de base.css e componentes.css — carregar este arquivo por
+  último, nessa ordem.
+*/
+
+/* Barra superior com o logo e a barbearia logada. Aparece em toda
+   tela do painel do administrador, a partir da fase 3 do roadmap. */
+.barra-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--espaco-4) var(--espaco-5);
+  border-bottom: 1px solid var(--cor-borda);
+  background-color: var(--cor-fundo-superficie);
+}
+
+.barra-topo__identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+}
+
+.barra-topo__barbearia {
+  font-weight: 600;
+}
+
+/* Lista de barbeiros, serviços e clientes dentro das abas de
+   Cadastros: cada item do cadastro vira uma linha deste tipo. */
+.item-cadastro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  padding: var(--espaco-4);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-padrao);
+  background-color: var(--cor-fundo-superficie);
+}
+
+.item-cadastro + .item-cadastro {
+  margin-top: var(--espaco-3);
+}
+
+.item-cadastro__info h4 {
+  margin-bottom: 2px;
+}
+
+.item-cadastro__detalhe {
+  color: var(--cor-texto-secundario);
+  font-size: 13px;
+}
+
+/* Lista de horários de trabalho dentro do cadastro de um barbeiro:
+   um campo de início e fim por dia da semana. */
+.grade-horarios {
+  display: grid;
+  grid-template-columns: 110px 1fr 1fr;
+  gap: var(--espaco-3);
+  align-items: center;
+}
+
+.grade-horarios__dia {
+  font-weight: 600;
+}
+
+/* Mensagem exibida quando uma lista de cadastro ainda está vazia */
+.lista-vazia {
+  padding: var(--espaco-6);
+  text-align: center;
+  color: var(--cor-texto-secundario);
+}

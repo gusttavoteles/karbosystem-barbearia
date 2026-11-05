@@ -1,0 +1,192 @@
+/*
+  base.css
+  --------
+  Fundação visual do Karbo Barber: variáveis de cor (seção 11.5 da
+  documentação), reset básico e tipografia. Todo outro arquivo CSS do
+  projeto parte das variáveis definidas aqui — nenhuma cor deve ser
+  escrita "na mão" em outro arquivo.
+
+  Carregar SEMPRE antes de componentes.css e dos CSS de cada área
+  (cliente.css, admin.css, barbeiro.css).
+*/
+
+/* ---------------------------------------------------------------
+   1. Variáveis de cor (design tokens)
+   As três cores de marca vêm direto dos arquivos oficiais de logo
+   (ver docs/DOCUMENTACAO.md, seção 11.5). As demais são derivadas
+   delas, para manter a identidade em qualquer tela do sistema.
+   ------------------------------------------------------------- */
+:root {
+  /* Cores de marca, extraídas dos PDFs oficiais do logo */
+  --cor-preto: #0a0a0a;          /* fundo do logo/ícone */
+  --cor-verde: #00d26a;          /* verde principal */
+  --cor-verde-claro: #b6ffd3;    /* detalhe/realce do "K" */
+
+  /* Cinzas de apoio, derivados do preto da marca.
+     Usados em fundos de card, bordas e texto secundário. */
+  --cinza-950: #0a0a0a;  /* igual ao preto da marca: fundo mais escuro da UI */
+  --cinza-900: #141414;
+  --cinza-800: #1f1f1f;
+  --cinza-700: #2e2e2e;
+  --cinza-600: #474747;
+  --cinza-500: #6b6b6b;
+  --cinza-400: #9a9a9a;
+  --cinza-300: #c4c4c4;
+  --cinza-200: #e0e0e0;
+  --cinza-100: #f2f2f2;
+  --cinza-50:  #fafafa;
+
+  /* Cores de estado (feedback ao usuário) */
+  --cor-sucesso: var(--cor-verde);
+  --cor-sucesso-fundo: #0f2e1f;
+  --cor-aviso: #e8b800;
+  --cor-aviso-fundo: #332b00;
+  --cor-erro: #ef4444;
+  --cor-erro-fundo: #350d0d;
+  --cor-info: #3b9eff;
+  --cor-info-fundo: #0d2338;
+
+  /* Papéis semânticos: o que cada cor REPRESENTA na interface.
+     Telas e componentes devem usar estas variáveis, não as cores
+     "cruas" acima — assim, se a marca mudar um tom, só se ajusta
+     aqui, e nada mais no projeto precisa ser tocado. */
+  --cor-fundo:            var(--cinza-950);
+  --cor-fundo-superficie: var(--cinza-900);  /* cards, painéis */
+  --cor-fundo-elevado:    var(--cinza-800);  /* modais, menus */
+  --cor-borda:            var(--cinza-700);
+
+  --cor-texto:            var(--cinza-50);
+  --cor-texto-secundario: var(--cinza-400);
+  --cor-texto-sobre-verde: var(--cor-preto); /* texto sobre fundo verde precisa de contraste */
+
+  --cor-primaria:         var(--cor-verde);
+  --cor-primaria-hover:   #00e879;
+  --cor-primaria-texto:   var(--cor-preto);
+
+  --cor-destaque:         var(--cor-verde-claro);
+
+  /* Tipografia: fonte do sistema por padrão. Se a marca definir uma
+     fonte própria para o wordmark (ver questão em aberto na
+     documentação), ela entra aqui como --fonte-destaque, sem
+     precisar mexer em outro arquivo. */
+  --fonte-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+
+  /* Espaçamento em escala, para manter consistência entre telas */
+  --espaco-1: 4px;
+  --espaco-2: 8px;
+  --espaco-3: 12px;
+  --espaco-4: 16px;
+  --espaco-5: 24px;
+  --espaco-6: 32px;
+  --espaco-8: 48px;
+
+  --raio-padrao: 10px;
+  --raio-grande: 20px;
+
+  --sombra-card: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* ---------------------------------------------------------------
+   2. Reset básico
+   Remove as diferenças de estilo padrão entre navegadores, para que
+   todo componente comece de um ponto previsível.
+   ------------------------------------------------------------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* largura/altura incluem borda e padding */
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Evita que o texto "pule" de tamanho ao girar o celular */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+
+  /* Avisa o navegador que a interface é escura, para que campos
+     nativos de data/hora, checkboxes e a barra de rolagem usem a
+     variante escura com contraste correto — sem isso, o texto
+     digitado em <input type="time"> fica invisível sobre o fundo
+     escuro do campo. */
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--fonte-base);
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.5;
+  min-height: 100vh;
+  /* Evita rolagem horizontal indesejada em telas de celular */
+  overflow-x: hidden;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+ul,
+ol {
+  list-style: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------
+   3. Tipografia
+   Escala de títulos e texto usada em todas as telas do sistema.
+   ------------------------------------------------------------- */
+h1, h2, h3, h4 {
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 22px; }
+h3 { font-size: 18px; }
+h4 { font-size: 15px; }
+
+p, label, span, td, th, li {
+  font-size: 15px;
+}
+
+small, .texto-secundario {
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+}
+
+/* Classe utilitária para números monetários e de horário, que ficam
+   mais legíveis com largura fixa entre os dígitos. */
+.numero-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------------------------------------------------------------
+   4. Acessibilidade: foco visível
+   Mantém um contorno visível ao navegar por teclado, sem exibir o
+   contorno em cliques de mouse (que seria visualmente ruidoso).
+   ------------------------------------------------------------- */
+:focus-visible {
+  outline: 2px solid var(--cor-primaria);
+  outline-offset: 2px;
+}

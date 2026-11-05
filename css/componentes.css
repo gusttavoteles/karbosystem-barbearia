@@ -1,0 +1,323 @@
+/*
+  componentes.css
+  ---------------
+  Componentes reutilizáveis de interface: botões, cards, formulários,
+  tabelas e mensagens de aviso. Usado por todas as áreas do sistema
+  (cliente, admin, barbeiro, super-admin).
+
+  Depende das variáveis definidas em base.css — carregar este arquivo
+  sempre DEPOIS dele.
+*/
+
+/* ---------------------------------------------------------------
+   1. Layout de página
+   ------------------------------------------------------------- */
+.pagina {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--espaco-5) var(--espaco-4);
+}
+
+.cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+  margin-bottom: var(--espaco-5);
+}
+
+.cabecalho__logo {
+  height: 32px;
+  width: auto;
+}
+
+/* ---------------------------------------------------------------
+   2. Botões
+   ------------------------------------------------------------- */
+.botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--espaco-2);
+  padding: var(--espaco-3) var(--espaco-5);
+  border: none;
+  border-radius: var(--raio-padrao);
+  font-weight: 600;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
+  white-space: nowrap;
+}
+
+.botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Botão principal: ação mais importante da tela (ex.: "Agendar") */
+.botao--primario {
+  background-color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+}
+.botao--primario:hover:not(:disabled) {
+  background-color: var(--cor-primaria-hover);
+}
+
+/* Botão secundário: ação alternativa, sem chamar tanta atenção */
+.botao--secundario {
+  background-color: transparent;
+  color: var(--cor-texto);
+  border: 1px solid var(--cor-borda);
+}
+.botao--secundario:hover:not(:disabled) {
+  background-color: var(--cor-fundo-elevado);
+}
+
+/* Botão de perigo: ações destrutivas (excluir, cancelar) */
+.botao--perigo {
+  background-color: transparent;
+  color: var(--cor-erro);
+  border: 1px solid var(--cor-erro);
+}
+.botao--perigo:hover:not(:disabled) {
+  background-color: var(--cor-erro-fundo);
+}
+
+/* Botão específico para abrir o WhatsApp — usa a cor de marca do
+   próprio WhatsApp, por ser um reconhecimento universal do usuário,
+   e não uma cor do sistema de design da Karbo. */
+.botao--whatsapp {
+  background-color: #25d366;
+  color: #063d20;
+}
+.botao--whatsapp:hover:not(:disabled) {
+  background-color: #2fe072;
+}
+
+.botao--bloco {
+  width: 100%;
+}
+
+.botao--pequeno {
+  padding: var(--espaco-2) var(--espaco-3);
+  font-size: 13px;
+}
+
+/* ---------------------------------------------------------------
+   3. Cards
+   ------------------------------------------------------------- */
+.card {
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-grande);
+  padding: var(--espaco-5);
+  box-shadow: var(--sombra-card);
+}
+
+.card + .card {
+  margin-top: var(--espaco-4);
+}
+
+.card__titulo {
+  margin-bottom: var(--espaco-4);
+}
+
+/* ---------------------------------------------------------------
+   4. Formulários
+   ------------------------------------------------------------- */
+.campo {
+  margin-bottom: var(--espaco-4);
+}
+
+.campo label {
+  display: block;
+  margin-bottom: var(--espaco-2);
+  font-weight: 600;
+}
+
+.campo .texto-secundario {
+  display: block;
+  margin-top: var(--espaco-1);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: var(--espaco-3);
+  background-color: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+  border-radius: var(--raio-padrao);
+  color: var(--cor-texto);
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: var(--cor-primaria);
+}
+
+/* Campo com erro de validação */
+.campo--invalido input,
+.campo--invalido select,
+.campo--invalido textarea {
+  border-color: var(--cor-erro);
+}
+.campo__erro {
+  display: none;
+  color: var(--cor-erro);
+  font-size: 13px;
+  margin-top: var(--espaco-1);
+}
+.campo--invalido .campo__erro {
+  display: block;
+}
+
+.linha-formulario {
+  display: flex;
+  gap: var(--espaco-4);
+}
+.linha-formulario > .campo {
+  flex: 1;
+}
+
+/* ---------------------------------------------------------------
+   5. Tabelas (usadas em cadastros, agenda, relatórios)
+   ------------------------------------------------------------- */
+.tabela th,
+.tabela td {
+  text-align: left;
+  padding: var(--espaco-3);
+  border-bottom: 1px solid var(--cor-borda);
+}
+
+.tabela th {
+  color: var(--cor-texto-secundario);
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tabela tbody tr:hover {
+  background-color: var(--cor-fundo-elevado);
+}
+
+/* ---------------------------------------------------------------
+   6. Selos de status (agendamento, custo, caixa etc.)
+   ------------------------------------------------------------- */
+.selo {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--espaco-3);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.selo--sucesso { background-color: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.selo--aviso   { background-color: var(--cor-aviso-fundo);   color: var(--cor-aviso); }
+.selo--erro    { background-color: var(--cor-erro-fundo);    color: var(--cor-erro); }
+.selo--info    { background-color: var(--cor-info-fundo);    color: var(--cor-info); }
+.selo--neutro  { background-color: var(--cor-fundo-elevado); color: var(--cor-texto-secundario); }
+
+/* ---------------------------------------------------------------
+   7. Mensagens de aviso (acima de formulários ou listas)
+   ------------------------------------------------------------- */
+.aviso {
+  display: flex;
+  gap: var(--espaco-3);
+  padding: var(--espaco-4);
+  border-radius: var(--raio-padrao);
+  margin-bottom: var(--espaco-4);
+}
+
+.aviso--info    { background-color: var(--cor-info-fundo);    color: var(--cor-info); }
+.aviso--sucesso { background-color: var(--cor-sucesso-fundo); color: var(--cor-sucesso); }
+.aviso--erro    { background-color: var(--cor-erro-fundo);    color: var(--cor-erro); }
+
+/* ---------------------------------------------------------------
+   8. Abas (usadas na tela de Cadastros, que reúne vários formulários)
+   ------------------------------------------------------------- */
+.abas {
+  display: flex;
+  gap: var(--espaco-2);
+  border-bottom: 1px solid var(--cor-borda);
+  margin-bottom: var(--espaco-5);
+  overflow-x: auto;
+}
+
+.abas__item {
+  padding: var(--espaco-3) var(--espaco-4);
+  cursor: pointer;
+  color: var(--cor-texto-secundario);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-weight: 600;
+}
+
+.abas__item.ativo {
+  color: var(--cor-texto);
+  border-bottom-color: var(--cor-primaria);
+}
+
+.aba__painel {
+  display: none;
+}
+.aba__painel.ativo {
+  display: block;
+}
+
+/* ---------------------------------------------------------------
+   9. Utilidades de layout
+   ------------------------------------------------------------- */
+.flex {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+}
+
+.flex--entre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-3);
+}
+
+.espaco-acima {
+  margin-top: var(--espaco-5);
+}
+
+.texto-centro {
+  text-align: center;
+}
+
+.lista-acoes {
+  display: flex;
+  gap: var(--espaco-2);
+}
+
+/* ---------------------------------------------------------------
+   10. Responsividade: celular primeiro
+   Em telas estreitas, formulários em duas colunas viram uma coluna
+   só, e o cabeçalho empilha em vez de ficar lado a lado.
+   ------------------------------------------------------------- */
+@media (max-width: 640px) {
+  .linha-formulario {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cabecalho {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pagina {
+    padding: var(--espaco-4) var(--espaco-3);
+  }
+}

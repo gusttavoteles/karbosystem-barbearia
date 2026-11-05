@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Entrar — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <main class="pagina" style="max-width: 420px; padding-top: var(--espaco-8);">
+    <div class="texto-centro espaco-acima" style="margin-bottom: var(--espaco-6);">
+      <img
+        src="../assets/img/icone-fundo-verde.svg"
+        alt="Karbo Barber"
+        style="width: 64px; margin: 0 auto var(--espaco-4);"
+      />
+      <h1>Entrar no painel</h1>
+    </div>
+
+    <div class="aviso aviso--info" id="aviso-prototipo">
+      Este login ainda é provisório (fase 1 do projeto). Em vez de senha,
+      escolha abaixo qual barbearia você quer administrar — o login de
+      verdade entra na fase 5, junto com o banco de dados definitivo.
+    </div>
+
+    <form id="formulario-login" class="card">
+      <div class="campo">
+        <label for="campo-barbearia">Barbearia</label>
+        <select id="campo-barbearia" required></select>
+        <span class="texto-secundario">
+          Cada barbearia só enxerga os próprios dados. Troque a seleção
+          para comprovar que o cadastro de uma não aparece na outra.
+        </span>
+      </div>
+
+      <button type="submit" class="botao botao--primario botao--bloco">
+        Entrar
+      </button>
+    </form>
+  </main>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script>
+    /*
+      Lógica da tela de login (provisória).
+      Preenche o seletor com as barbearias cadastradas e, ao
+      confirmar, abre a sessão daquela barbearia e segue para a
+      tela de cadastros.
+    */
+
+    // Preenche o <select> com todas as barbearias de exemplo.
+    function preencherSeletorDeBarbearias() {
+      const seletor = document.getElementById("campo-barbearia");
+      const barbearias = Dados.listarBarbearias();
+
+      seletor.innerHTML = barbearias
+        .map((b) => `<option value="${b.id}">${b.nome}</option>`)
+        .join("");
+    }
+
+    // Ao enviar o formulário, abre a sessão como administrador da
+    // barbearia escolhida e segue para a tela de cadastros.
+    function configurarEnvioDoFormulario() {
+      const formulario = document.getElementById("formulario-login");
+
+      formulario.addEventListener("submit", function (evento) {
+        evento.preventDefault();
+
+        const barbeariaId = document.getElementById("campo-barbearia").value;
+        Auth.entrarComoAdmin(barbeariaId);
+
+        window.location.href = "cadastros.html";
+      });
+    }
+
+    preencherSeletorDeBarbearias();
+    configurarEnvioDoFormulario();
+  </script>
+</body>
+</html>
