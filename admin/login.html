@@ -64,7 +64,8 @@
     }
 
     // Ao enviar o formulário, abre a sessão como administrador da
-    // barbearia escolhida e segue para a tela de cadastros.
+    // barbearia escolhida e segue para a tela inicial do painel
+    // (Próximos 3 dias / dashboard).
     function configurarEnvioDoFormulario() {
       const formulario = document.getElementById("formulario-login");
 
@@ -74,7 +75,7 @@
         const barbeariaId = document.getElementById("campo-barbearia").value;
         Auth.entrarComoAdmin(barbeariaId);
 
-        window.location.href = "cadastros.html";
+        window.location.href = "proximos-dias.html";
       });
     }
 

@@ -27,6 +27,33 @@
   font-weight: 600;
 }
 
+/* Navegação simples na barra superior, usada enquanto não existe
+   o menu lateral completo do dashboard (ver proximos-dias.html,
+   que já traz o menu lateral; cadastros.html ainda usa esta barra
+   até ganhar o mesmo menu numa fase futura). */
+.barra-topo__nav {
+  display: flex;
+  gap: var(--espaco-2);
+}
+
+.barra-topo__link {
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-padrao);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--cor-texto-secundario);
+}
+
+.barra-topo__link:hover {
+  background-color: var(--cor-fundo-elevado);
+  color: var(--cor-texto);
+}
+
+.barra-topo__link.ativo {
+  color: var(--cor-primaria);
+  background-color: color-mix(in srgb, var(--cor-primaria) 16%, transparent);
+}
+
 /* Lista de barbeiros, serviços e clientes dentro das abas de
    Cadastros: cada item do cadastro vira uma linha deste tipo. */
 .item-cadastro {
@@ -71,4 +98,440 @@
   padding: var(--espaco-6);
   text-align: center;
   color: var(--cor-texto-secundario);
+}
+
+/* =================================================================
+   DASHBOARD (admin/proximos-dias.html)
+   A tela inicial do painel: menu lateral fixo + conteúdo principal.
+   ================================================================= */
+
+/* Layout geral: menu lateral + conteúdo, lado a lado em telas
+   largas, empilhado em telas estreitas (ver a media query no fim). */
+.layout-painel {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---------------------------------------------------------------
+   Menu lateral
+   ------------------------------------------------------------- */
+.menu-lateral {
+  flex: 0 0 248px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-6);
+  padding: var(--espaco-5) var(--espaco-4);
+  background-color: var(--cor-fundo-superficie);
+  border-right: 1px solid var(--cor-borda);
+}
+
+.menu-lateral__marca {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: 0 var(--espaco-2);
+}
+
+.menu-lateral__marca img {
+  width: 40px;
+  flex: 0 0 auto;
+}
+
+.menu-lateral__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+}
+
+.menu-lateral__item {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  height: 44px;
+  padding: 0 var(--espaco-3);
+  border-radius: var(--raio-padrao);
+  border: none;
+  background: transparent;
+  color: var(--cor-texto-secundario);
+  font-weight: 600;
+  font-size: 15px;
+  text-align: left;
+  width: 100%;
+}
+
+.menu-lateral__item svg {
+  flex: 0 0 auto;
+}
+
+.menu-lateral__item:hover {
+  background-color: var(--cor-fundo-elevado);
+  color: var(--cor-texto);
+}
+
+.menu-lateral__item.ativo {
+  color: var(--cor-primaria);
+  background-color: color-mix(in srgb, var(--cor-primaria) 16%, transparent);
+}
+
+.menu-lateral__rodape {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+}
+
+.menu-lateral__link-publico {
+  padding: var(--espaco-4);
+  border-radius: 14px;
+  background-color: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+}
+
+.menu-lateral__usuario {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: 0 var(--espaco-2);
+}
+
+.menu-lateral__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background-color: var(--cor-fundo-elevado);
+  border: 1px solid var(--cor-borda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  flex: 0 0 auto;
+}
+
+/* ---------------------------------------------------------------
+   Conteúdo principal
+   ------------------------------------------------------------- */
+.conteudo-painel {
+  flex: 1;
+  min-width: 0;
+  padding: var(--espaco-5) clamp(16px, 2.5vw, 36px) var(--espaco-8);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-5);
+}
+
+.cabecalho-painel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--espaco-4);
+}
+
+/* Filtro por barbeiro: botões em formato de pílula ("chips") */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  height: 44px;
+  padding: 0 var(--espaco-4);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--cor-borda);
+  background-color: var(--cor-fundo-superficie);
+  color: var(--cor-texto);
+}
+
+.chip[aria-pressed="true"] {
+  border-color: var(--cor-primaria);
+  background-color: color-mix(in srgb, var(--cor-primaria) 16%, transparent);
+  color: var(--cor-primaria);
+}
+
+.chip__contagem {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cor-texto-secundario);
+}
+.chip[aria-pressed="true"] .chip__contagem {
+  color: var(--cor-primaria);
+}
+
+/* Busca de cliente */
+.busca-cliente {
+  position: relative;
+  flex: 1 1 260px;
+  max-width: 380px;
+}
+.busca-cliente svg {
+  position: absolute;
+  left: 14px;
+  top: 13px;
+  pointer-events: none;
+}
+.busca-cliente input {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--espaco-3) 0 42px;
+  border-radius: 12px;
+  border: 1px solid var(--cor-borda);
+  background-color: var(--cor-fundo-superficie);
+  font-size: 14px;
+}
+
+/* Indicadores (KPIs) */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: var(--espaco-3);
+}
+
+.kpi {
+  padding: var(--espaco-4) var(--espaco-5);
+  border-radius: var(--raio-grande);
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+  box-shadow: var(--sombra-card);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.kpi__valor {
+  font-weight: 700;
+  font-size: 34px;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.kpi__barra {
+  height: 8px;
+  border-radius: 999px;
+  background-color: var(--cor-fundo-elevado);
+  overflow: hidden;
+}
+.kpi__barra > div {
+  height: 100%;
+  border-radius: 999px;
+  background-color: var(--cor-sucesso);
+  transition: width 0.3s;
+}
+
+/* Corpo: lista de agendamentos (esquerda) + coluna direita */
+.corpo-painel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--espaco-5);
+}
+
+.coluna-principal {
+  flex: 999 1 600px;
+  min-width: 0;
+}
+
+.coluna-lateral {
+  flex: 1 1 360px;
+  min-width: 0;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-5);
+}
+
+/* Abas de dia (Hoje / Amanhã / Depois de amanhã) */
+.abas-dia {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--espaco-2);
+}
+
+.aba-dia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-2);
+  min-height: 56px;
+  padding: var(--espaco-2) var(--espaco-3);
+  border-radius: var(--raio-padrao);
+  border: 1px solid var(--cor-borda);
+  background-color: var(--cor-fundo-elevado);
+  color: var(--cor-texto);
+  text-align: left;
+}
+
+.aba-dia[aria-pressed="true"] {
+  border-color: var(--cor-primaria);
+  background-color: color-mix(in srgb, var(--cor-primaria) 16%, transparent);
+  color: var(--cor-primaria);
+}
+
+.aba-dia__rotulo {
+  font-weight: 600;
+  font-size: 15px;
+  display: block;
+}
+.aba-dia__sub {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+  display: block;
+}
+.aba-dia[aria-pressed="true"] .aba-dia__sub {
+  color: var(--cor-primaria);
+}
+
+.aba-dia__contagem {
+  min-width: 28px;
+  height: 28px;
+  padding: 0 var(--espaco-2);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  background-color: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda);
+}
+.aba-dia[aria-pressed="true"] .aba-dia__contagem {
+  background-color: var(--cor-primaria);
+  color: var(--cor-primaria-texto);
+  border-color: var(--cor-primaria);
+}
+
+/* Linha de um agendamento na lista de próximos dias */
+.linha-agendamento {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-3) var(--espaco-4);
+  border-top: 1px solid var(--cor-borda);
+}
+.linha-agendamento:hover {
+  background-color: var(--cor-fundo-elevado);
+}
+
+.linha-agendamento__hora {
+  flex: 0 0 54px;
+}
+.linha-agendamento__hora strong {
+  display: block;
+  font-size: 17px;
+}
+.linha-agendamento__hora span {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+}
+
+.linha-agendamento__cliente {
+  flex: 1 1 150px;
+  min-width: 0;
+}
+.linha-agendamento__cliente strong {
+  display: block;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.linha-agendamento__cliente span {
+  font-size: 13px;
+  color: var(--cor-texto-secundario);
+}
+
+.linha-agendamento__barbeiro {
+  flex: 0 1 128px;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  min-width: 0;
+}
+
+.linha-agendamento__acoes {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+/* Painel "aguardando finalização" */
+.item-finalizar {
+  padding: var(--espaco-4);
+  border-top: 1px solid var(--cor-borda);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-3);
+}
+
+/* Painel "cartão fidelidade" */
+.item-fidelidade {
+  padding: var(--espaco-3) var(--espaco-4);
+  border-top: 1px solid var(--cor-borda);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+/* Mini calendário */
+.mini-calendario__dias-semana,
+.mini-calendario__grade {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+.mini-calendario__dias-semana span {
+  font-size: 12px;
+  color: var(--cor-texto-secundario);
+  text-align: center;
+}
+
+.mini-calendario__celula {
+  aspect-ratio: 1 / 1;
+  min-height: 36px;
+  border-radius: 10px;
+  border: none;
+  font-size: 13px;
+  background-color: var(--cor-fundo-elevado);
+  color: var(--cor-texto);
+}
+.mini-calendario__celula.hoje {
+  box-shadow: inset 0 0 0 2px var(--cor-primaria);
+  font-weight: 700;
+}
+.mini-calendario__celula.selecionada {
+  outline: 2px solid var(--cor-texto);
+  outline-offset: 1px;
+}
+.mini-calendario__celula.passado {
+  color: var(--cor-texto-secundario);
+}
+
+@media (max-width: 900px) {
+  .layout-painel {
+    flex-direction: column;
+  }
+  .menu-lateral {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--cor-borda);
+  }
+  .menu-lateral__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .menu-lateral__rodape {
+    display: none;
+  }
 }

@@ -17,6 +17,10 @@
       <img src="../assets/img/icone-fundo-verde.svg" alt="Karbo Barber" style="height: 28px;" />
       <span class="barra-topo__barbearia" id="texto-barbearia-logada">—</span>
     </div>
+    <nav class="barra-topo__nav">
+      <a href="proximos-dias.html" class="barra-topo__link">Início</a>
+      <a href="cadastros.html" class="barra-topo__link ativo">Cadastros</a>
+    </nav>
     <button class="botao botao--secundario botao--pequeno" id="botao-sair">Sair</button>
   </header>
 
@@ -133,10 +137,21 @@
     </section>
   </main>
 
+  <!-- Aviso (toast) de retorno, compartilhado por todas as telas do
+       painel — ver js/admin.js, mostrarToast(). -->
+  <div id="toast" class="toast" style="display: none;">
+    <span data-toast-texto></span>
+    <button data-toast-desfazer class="botao botao--secundario botao--pequeno" style="display: none;">Desfazer</button>
+  </div>
+
   <script src="../js/utils.js"></script>
   <script src="../js/config.js"></script>
   <script src="../js/dados.js"></script>
   <script src="../js/auth.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/fidelidade.js"></script>
+  <script src="../js/finalizacao.js"></script>
   <script src="../js/admin.js"></script>
+  <script src="../js/cadastros.js"></script>
 </body>
 </html>

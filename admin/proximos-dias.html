@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Próximos dias — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <div class="layout-painel">
+    <!-- ============ MENU LATERAL ============ -->
+    <aside class="menu-lateral">
+      <div class="menu-lateral__marca">
+        <img src="../assets/img/icone-fundo-verde.svg" alt="" />
+        <div>
+          <div style="font-weight: 700; font-size: 18px; letter-spacing: -0.01em; line-height: 1;">KARBO</div>
+          <div style="font-weight: 500; font-size: 10px; letter-spacing: 0.3em; color: var(--cor-texto-secundario);">SYSTEM</div>
+        </div>
+      </div>
+
+      <nav class="menu-lateral__nav" aria-label="Navegação principal">
+        <a href="proximos-dias.html" class="menu-lateral__item ativo" aria-current="page">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /></svg>
+          Início
+        </a>
+        <button class="menu-lateral__item" data-acao="em-construcao" data-nome="Agenda mensal">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
+          Agenda mensal
+        </button>
+        <button class="menu-lateral__item" data-acao="em-construcao" data-nome="Novo agendamento manual">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 8v8M8 12h8" /></svg>
+          Novo agendamento
+        </button>
+        <button class="menu-lateral__item" data-acao="em-construcao" data-nome="Clientes e fidelidade">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v8H4v-8" /><rect x="2" y="7" width="20" height="5" rx="1.5" /><path d="M12 20V7" /></svg>
+          Clientes e fidelidade
+        </button>
+        <a href="cadastros.html" class="menu-lateral__item">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" /></svg>
+          Cadastros
+        </a>
+      </nav>
+
+      <div class="menu-lateral__rodape">
+        <div class="menu-lateral__link-publico">
+          <div class="texto-secundario">Link público de agendamento</div>
+          <div class="numero-tabular" id="texto-link-publico" style="margin-top: 4px; font-weight: 600; font-size: 13px; word-break: break-all;">—</div>
+          <button class="botao botao--secundario botao--bloco botao--pequeno espaco-acima" id="botao-copiar-link">
+            Copiar link
+          </button>
+        </div>
+        <div class="menu-lateral__usuario">
+          <div class="menu-lateral__avatar">AD</div>
+          <div>
+            <div style="font-weight: 600; font-size: 14px;">Administrador</div>
+            <div class="texto-secundario">Acesso completo</div>
+          </div>
+        </div>
+        <button class="botao botao--secundario botao--bloco botao--pequeno" id="botao-sair">Sair</button>
+      </div>
+    </aside>
+
+    <!-- ============ CONTEÚDO PRINCIPAL ============ -->
+    <main class="conteudo-painel">
+      <!-- A barra abaixo não aparece na tela: mantém os ids que
+           js/admin.js espera encontrar (nome da barbearia e botão
+           sair), sem duplicar visualmente o que já está no rodapé
+           do menu lateral. -->
+      <span id="texto-barbearia-logada" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);"></span>
+
+      <header class="cabecalho-painel">
+        <div>
+          <div class="texto-secundario" id="texto-data-hoje">—</div>
+          <h1 style="margin: 4px 0 0;" id="texto-saudacao">Olá</h1>
+          <p class="texto-secundario espaco-acima" style="margin-top: 6px;" id="texto-resumo">—</p>
+        </div>
+        <button class="botao botao--primario" data-acao="em-construcao" data-nome="Novo agendamento manual">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+          Novo agendamento
+        </button>
+      </header>
+
+      <!-- Filtro por barbeiro + busca de cliente -->
+      <div class="flex--entre" style="flex-wrap: wrap;">
+        <div role="group" aria-label="Filtrar por barbeiro" class="chips" id="chips-barbeiro"></div>
+        <div class="busca-cliente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="color: var(--cor-texto-secundario);"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <label for="campo-busca" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Buscar cliente por nome ou telefone</label>
+          <input id="campo-busca" type="text" placeholder="Buscar cliente por nome ou telefone" />
+        </div>
+      </div>
+
+      <!-- Indicadores -->
+      <section aria-label="Indicadores" class="kpis" id="area-kpis"></section>
+
+      <div class="corpo-painel">
+        <!-- ESQUERDA: próximos 3 dias -->
+        <section class="coluna-principal card" style="padding: 0;" aria-labelledby="titulo-proximos">
+          <div style="padding: var(--espaco-4) var(--espaco-4) 0;">
+            <div class="flex--entre" style="align-items: baseline; flex-wrap: wrap;">
+              <div>
+                <h2 id="titulo-proximos" style="margin: 0;">Próximos 3 dias</h2>
+                <p class="texto-secundario" style="margin: 4px 0 0;">Confirme cada horário com o cliente pelo WhatsApp.</p>
+              </div>
+              <span class="texto-secundario numero-tabular" id="texto-resumo-lista">—</span>
+            </div>
+            <nav class="abas-dia espaco-acima" id="abas-dia" aria-label="Escolher dia" style="margin-bottom: var(--espaco-4);"></nav>
+          </div>
+          <div id="lista-agendamentos"></div>
+        </section>
+
+        <!-- DIREITA -->
+        <div class="coluna-lateral">
+          <!-- Aguardando finalização -->
+          <section class="card" style="padding: 0;" aria-labelledby="titulo-finalizacao">
+            <div style="padding: var(--espaco-4) var(--espaco-4) var(--espaco-2);">
+              <div class="flex--entre">
+                <h2 id="titulo-finalizacao" style="margin: 0; font-size: 20px;">Aguardando finalização</h2>
+                <span class="selo" id="selo-aguardando">0</span>
+              </div>
+              <p class="texto-secundario" style="margin: 6px 0 0; font-size: 13px;">Só corte confirmado pelo barbeiro gera ponto no cartão fidelidade.</p>
+            </div>
+            <div id="lista-aguardando"></div>
+          </section>
+
+          <!-- Cartão fidelidade -->
+          <section class="card" style="padding: 0;" aria-labelledby="titulo-fidelidade">
+            <div style="padding: var(--espaco-4) var(--espaco-4) var(--espaco-2);">
+              <h2 id="titulo-fidelidade" style="margin: 0; font-size: 20px;">Cartão fidelidade</h2>
+              <p class="texto-secundario" id="texto-meta-fidelidade" style="margin: 6px 0 0; font-size: 13px;">—</p>
+            </div>
+            <div id="lista-fidelidade"></div>
+          </section>
+
+          <!-- Mini calendário -->
+          <section class="card" aria-labelledby="titulo-calendario">
+            <div class="flex--entre" style="align-items: baseline;">
+              <h2 id="titulo-calendario" style="margin: 0; font-size: 20px;"><span id="texto-mes-calendario">—</span></h2>
+              <span class="texto-secundario" id="texto-escopo-calendario">—</span>
+            </div>
+            <div class="mini-calendario__dias-semana espaco-acima" aria-hidden="true">
+              <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+            </div>
+            <div class="mini-calendario__grade espaco-acima" id="grade-calendario"></div>
+            <div class="flex--entre espaco-acima" style="background: var(--cor-fundo-elevado); border: 1px solid var(--cor-borda); border-radius: 12px; padding: var(--espaco-3) var(--espaco-4);">
+              <div>
+                <div style="font-weight: 600; font-size: 14px;" id="texto-dia-selecionado">—</div>
+                <div class="texto-secundario numero-tabular" id="texto-resumo-dia-selecionado">—</div>
+              </div>
+              <button class="botao botao--secundario botao--pequeno" data-acao="em-construcao" data-nome="Agenda mensal">Abrir agenda</button>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Aviso (toast) de retorno, compartilhado por todas as telas do
+       painel — ver js/admin.js, mostrarToast(). -->
+  <div id="toast" class="toast" style="display: none;">
+    <span data-toast-texto></span>
+    <button data-toast-desfazer class="botao botao--secundario botao--pequeno" style="display: none;">Desfazer</button>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/fidelidade.js"></script>
+  <script src="../js/finalizacao.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/dashboard.js"></script>
+</body>
+</html>

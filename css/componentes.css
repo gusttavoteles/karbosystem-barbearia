@@ -302,7 +302,29 @@
 }
 
 /* ---------------------------------------------------------------
-   10. Responsividade: celular primeiro
+   10. Aviso de retorno (toast), com "Desfazer" opcional
+   Compartilhado por todas as telas do painel — ver js/admin.js,
+   mostrarToast(). Fica fixo na parte de baixo da tela.
+   ------------------------------------------------------------- */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: var(--espaco-5);
+  transform: translateX(-50%);
+  z-index: 100;
+  align-items: center;
+  gap: var(--espaco-4);
+  max-width: min(560px, calc(100vw - 32px));
+  padding: var(--espaco-3) var(--espaco-3) var(--espaco-3) var(--espaco-4);
+  border-radius: var(--raio-grande);
+  background-color: var(--cor-texto);
+  color: var(--cor-fundo);
+  box-shadow: var(--sombra-card);
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------
+   11. Responsividade: celular primeiro
    Em telas estreitas, formulários em duas colunas viram uma coluna
    só, e o cabeçalho empilha em vez de ficar lado a lado.
    ------------------------------------------------------------- */
