@@ -18,22 +18,63 @@
   função abaixo que lê ou grava dado operacional exige um
   `barbeariaId` como primeiro parâmetro, e filtra OU grava sempre
   dentro daquela barbearia. Nunca um dado de uma barbearia aparece
-  numa consulta de outra. Essa é a regra mais importante deste
-  arquivo, e o motivo de existirem duas barbearias fictícias nos
-  dados de exemplo abaixo: para provar, desde já, que o isolamento
-  funciona, antes mesmo de existir um banco de verdade.
+  numa consulta de outra.
+
+  PARA QUEM FOR MEXER NESTE ARQUIVO: antes de adicionar ou mudar uma
+  função, leia docs/BASE-DE-CONHECIMENTO.md — ele lista o que cada
+  tela e cada botão do sistema espera encontrar aqui, para que um
+  ajuste numa função não quebre uma tela que você não estava olhando.
 */
 
 const Dados = (function () {
-  const CHAVE_ARMAZENAMENTO = "karbo_barber_dados_v1";
+  const CHAVE_ARMAZENAMENTO = "karbo_barber_dados_v2";
 
   /* ---------------------------------------------------------------
      Dados de exemplo (seed)
      Duas barbearias fictícias e independentes, para já desenvolver
      e demonstrar o isolamento entre elas. Nenhum dado real deve
      entrar aqui — isto desaparece quando o banco definitivo entrar.
+
+     Os agendamentos de exemplo são gerados em torno da data em que
+     o sistema é aberto pela primeira vez neste navegador (hoje,
+     amanhã e depois de amanhã), para que o dashboard sempre tenha
+     algo relevante para mostrar, não importa quando for testado.
+     Chamar Dados.reiniciar() gera um novo lote, ancorado em "hoje".
      ------------------------------------------------------------- */
   function dadosIniciais() {
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    // Monta um horário ISO (string) a partir de quantos dias de hoje
+    // e do horário "HH:MM", para os agendamentos de exemplo.
+    function horarioDaqui(diasAFrente, horaMinuto) {
+      const [h, m] = horaMinuto.split(":").map(Number);
+      const data = new Date(hoje);
+      data.setDate(data.getDate() + diasAFrente);
+      data.setHours(h, m, 0, 0);
+      return data.toISOString();
+    }
+
+    let proximoIdAgendamento = 1;
+    function agendamentoSeed(barbeariaId, clienteId, barbeiroId, servicoId, diasAFrente, hora, duracaoMin, status) {
+      return {
+        id: "agd-" + proximoIdAgendamento++,
+        barbeariaId,
+        clienteId,
+        barbeiroId,
+        servicoId,
+        dataHora: horarioDaqui(diasAFrente, hora),
+        duracaoMin,
+        status, // AGENDADO | CONFIRMADO | REALIZADO | NAO_COMPARECEU | CANCELADO
+        origem: "LINK",
+        valorCobrado: null,
+        formaPagamento: null,
+        finalizadoPor: null,
+        finalizadoEm: null,
+        criadoEm: new Date().toISOString(),
+      };
+    }
+
     return {
       barbearias: [
         {
@@ -127,21 +168,51 @@ const Dados = (function () {
       ],
 
       clientes: [
-        {
-          id: "cli-1",
-          barbeariaId: "barb-carlos",
-          nome: "João Pedro",
-          telefone: "5562988880001",
-          dataNascimento: "1995-03-12",
-        },
-        {
-          id: "cli-2",
-          barbeariaId: "barb-navalha",
-          nome: "Marcos Vinícius",
-          telefone: "5562988880002",
-          dataNascimento: null,
-        },
+        { id: "cli-1", barbeariaId: "barb-carlos", nome: "João Pedro", telefone: "5562988880001", dataNascimento: "1995-03-12" },
+        { id: "cli-2", barbeariaId: "barb-carlos", nome: "Lucas Andrade", telefone: "5562988880011", dataNascimento: null },
+        { id: "cli-3", barbeariaId: "barb-carlos", nome: "Pedro Henrique", telefone: "5562988880012", dataNascimento: null },
+        { id: "cli-4", barbeariaId: "barb-carlos", nome: "Thiago Rocha", telefone: "5562988880013", dataNascimento: null },
+        { id: "cli-5", barbeariaId: "barb-carlos", nome: "Bruno Martins", telefone: "5562988880014", dataNascimento: null },
+        { id: "cli-6", barbeariaId: "barb-carlos", nome: "Felipe Costa", telefone: "5562988880015", dataNascimento: null },
+        { id: "cli-7", barbeariaId: "barb-carlos", nome: "Gabriel Souza", telefone: "5562988880016", dataNascimento: null },
+        { id: "cli-8", barbeariaId: "barb-carlos", nome: "Rodrigo Lima", telefone: "5562988880017", dataNascimento: null },
+        { id: "cli-9", barbeariaId: "barb-navalha", nome: "Marcos Vinícius", telefone: "5562988880002", dataNascimento: null },
       ],
+
+      agendamentos: [
+        // ---- Barbearia do Carlos: hoje (dia 0) ----
+        agendamentoSeed("barb-carlos", "cli-2", "brb-1", "srv-1", 0, "08:00", 30, "REALIZADO"),
+        agendamentoSeed("barb-carlos", "cli-3", "brb-2", "srv-2", 0, "08:30", 50, "NAO_COMPARECEU"),
+        agendamentoSeed("barb-carlos", "cli-4", "brb-1", "srv-1", 0, "09:00", 30, "CONFIRMADO"),
+        agendamentoSeed("barb-carlos", "cli-5", "brb-2", "srv-1", 0, "11:00", 30, "CONFIRMADO"),
+        agendamentoSeed("barb-carlos", "cli-6", "brb-1", "srv-1", 0, "14:00", 30, "AGENDADO"),
+        agendamentoSeed("barb-carlos", "cli-7", "brb-2", "srv-2", 0, "16:00", 50, "AGENDADO"),
+        agendamentoSeed("barb-carlos", "cli-8", "brb-1", "srv-1", 0, "18:00", 30, "AGENDADO"),
+
+        // ---- Barbearia do Carlos: amanhã (dia 1) ----
+        agendamentoSeed("barb-carlos", "cli-1", "brb-1", "srv-1", 1, "09:30", 30, "AGENDADO"),
+        agendamentoSeed("barb-carlos", "cli-2", "brb-2", "srv-2", 1, "11:00", 50, "CONFIRMADO"),
+        agendamentoSeed("barb-carlos", "cli-3", "brb-1", "srv-1", 1, "15:00", 30, "AGENDADO"),
+
+        // ---- Barbearia do Carlos: depois de amanhã (dia 2) ----
+        agendamentoSeed("barb-carlos", "cli-4", "brb-2", "srv-1", 2, "10:00", 30, "AGENDADO"),
+        agendamentoSeed("barb-carlos", "cli-5", "brb-1", "srv-2", 2, "13:30", 50, "AGENDADO"),
+
+        // ---- Studio Navalha: hoje e amanhã ----
+        agendamentoSeed("barb-navalha", "cli-9", "brb-3", "srv-3", 0, "10:30", 40, "CONFIRMADO"),
+        agendamentoSeed("barb-navalha", "cli-9", "brb-3", "srv-3", 1, "15:30", 40, "AGENDADO"),
+      ],
+
+      // Pontos já existentes, para o cartão fidelidade já nascer com
+      // gente perto da meta e provar o cálculo de saldo.
+      fidelidadePontos: [
+        { id: "fid-1", clienteId: "cli-2", agendamentoId: null, pontos: 9, criadoEm: new Date().toISOString() },
+        { id: "fid-2", clienteId: "cli-4", agendamentoId: null, pontos: 8, criadoEm: new Date().toISOString() },
+        { id: "fid-3", clienteId: "cli-8", agendamentoId: null, pontos: 7, criadoEm: new Date().toISOString() },
+        { id: "fid-4", clienteId: "cli-6", agendamentoId: null, pontos: 4, criadoEm: new Date().toISOString() },
+      ],
+
+      fidelidadeResgates: [],
     };
   }
 
@@ -172,8 +243,9 @@ const Dados = (function () {
     }
   }
 
-  /** Apaga todo o banco provisório e recomeça do zero com o seed.
-   *  Útil só em desenvolvimento, para resetar o protótipo. */
+  /** Apaga todo o banco provisório e recomeça do zero com o seed,
+   *  ancorado em "hoje" de novo. Útil em desenvolvimento, e também
+   *  oferecido como botão no painel enquanto não há banco real. */
   function reiniciar() {
     const inicial = dadosIniciais();
     salvar(inicial);
@@ -363,6 +435,15 @@ const Dados = (function () {
     return carregar().servicos.filter((s) => s.barbeariaId === barbeariaId);
   }
 
+  function obterServico(barbeariaId, servicoId) {
+    exigirBarbeariaId(barbeariaId);
+    return (
+      carregar().servicos.find(
+        (s) => s.id === servicoId && s.barbeariaId === barbeariaId
+      ) || null
+    );
+  }
+
   function criarServico(barbeariaId, dadosServico) {
     exigirBarbeariaId(barbeariaId);
     const banco = carregar();
@@ -423,6 +504,18 @@ const Dados = (function () {
     return carregar().clientes.filter((c) => c.barbeariaId === barbeariaId);
   }
 
+  /** Busca um cliente pelo id DENTRO da barbearia informada — nunca
+   *  devolve um cliente de outra barbearia, mesmo que o id exista
+   *  lá (o que não deveria acontecer, mas a checagem é a garantia). */
+  function obterCliente(barbeariaId, clienteId) {
+    exigirBarbeariaId(barbeariaId);
+    return (
+      carregar().clientes.find(
+        (c) => c.id === clienteId && c.barbeariaId === barbeariaId
+      ) || null
+    );
+  }
+
   /** Busca um cliente pelo telefone DENTRO da barbearia informada.
    *  O telefone é único por barbearia, não globalmente (regra 2 da
    *  seção 6 da documentação): duas barbearias podem ter clientes
@@ -462,6 +555,269 @@ const Dados = (function () {
   }
 
   /* ---------------------------------------------------------------
+     Agendamentos
+     ------------------------------------------------------------- */
+
+  /** Lista os agendamentos de uma barbearia, com filtros opcionais:
+   *  { barbeiroId, desde, ate } — `desde`/`ate` são objetos Date,
+   *  comparados contra o campo dataHora. Sempre devolve ordenado
+   *  por data e hora, do mais cedo para o mais tarde. */
+  function listarAgendamentos(barbeariaId, filtros) {
+    exigirBarbeariaId(barbeariaId);
+    filtros = filtros || {};
+
+    let lista = carregar().agendamentos.filter((a) => a.barbeariaId === barbeariaId);
+
+    if (filtros.barbeiroId) {
+      lista = lista.filter((a) => a.barbeiroId === filtros.barbeiroId);
+    }
+    if (filtros.desde) {
+      lista = lista.filter((a) => new Date(a.dataHora) >= filtros.desde);
+    }
+    if (filtros.ate) {
+      lista = lista.filter((a) => new Date(a.dataHora) < filtros.ate);
+    }
+
+    return lista.sort((a, b) => new Date(a.dataHora) - new Date(b.dataHora));
+  }
+
+  function obterAgendamento(barbeariaId, agendamentoId) {
+    exigirBarbeariaId(barbeariaId);
+    return (
+      carregar().agendamentos.find(
+        (a) => a.id === agendamentoId && a.barbeariaId === barbeariaId
+      ) || null
+    );
+  }
+
+  /** Agendamentos "ativos" são os que ainda ocupam um horário:
+   *  AGENDADO ou CONFIRMADO. Usado tanto para checar conflito de
+   *  horário quanto para achar o que está "aguardando finalização". */
+  function ehStatusAtivo(status) {
+    return status === "AGENDADO" || status === "CONFIRMADO";
+  }
+
+  /** Cria um agendamento (manual, pelo admin ou pelo barbeiro —
+   *  RF08/RF14 — ou público, pelo cliente — RF01/RF05). Verifica
+   *  antes que o barbeiro não tenha outro agendamento ativo no
+   *  mesmo horário (regra 3 da seção 6 da documentação). */
+  function criarAgendamento(barbeariaId, dadosAgendamento) {
+    exigirBarbeariaId(barbeariaId);
+    const banco = carregar();
+
+    const conflito = banco.agendamentos.some(
+      (a) =>
+        a.barbeariaId === barbeariaId &&
+        a.barbeiroId === dadosAgendamento.barbeiroId &&
+        a.dataHora === dadosAgendamento.dataHora &&
+        ehStatusAtivo(a.status)
+    );
+    if (conflito) {
+      throw new Error("Este barbeiro já tem um agendamento ativo neste horário.");
+    }
+
+    const novo = {
+      id: gerarId(),
+      barbeariaId,
+      clienteId: dadosAgendamento.clienteId,
+      barbeiroId: dadosAgendamento.barbeiroId,
+      servicoId: dadosAgendamento.servicoId || null,
+      dataHora: dadosAgendamento.dataHora,
+      duracaoMin: Number(dadosAgendamento.duracaoMin) || 30,
+      status: "AGENDADO",
+      origem: dadosAgendamento.origem || "MANUAL",
+      valorCobrado: null,
+      formaPagamento: null,
+      finalizadoPor: null,
+      finalizadoEm: null,
+      criadoEm: new Date().toISOString(),
+    };
+
+    banco.agendamentos.push(novo);
+    salvar(banco);
+    return novo;
+  }
+
+  /** Troca o status de um agendamento, confirmando que ele pertence
+   *  à barbearia informada. Uso interno — as funções abaixo
+   *  (confirmar, cancelar, finalizar) são a API pública, porque cada
+   *  transição tem suas próprias regras. */
+  function mudarStatus(barbeariaId, agendamentoId, novoStatus, extras) {
+    exigirBarbeariaId(barbeariaId);
+    const banco = carregar();
+    const agendamento = banco.agendamentos.find(
+      (a) => a.id === agendamentoId && a.barbeariaId === barbeariaId
+    );
+    if (!agendamento) return null;
+
+    agendamento.status = novoStatus;
+    Object.assign(agendamento, extras || {});
+
+    salvar(banco);
+    return agendamento;
+  }
+
+  /** RF12: marca o agendamento como confirmado pelo cliente, depois
+   *  que ele respondeu no WhatsApp. */
+  function confirmarAgendamento(barbeariaId, agendamentoId) {
+    return mudarStatus(barbeariaId, agendamentoId, "CONFIRMADO");
+  }
+
+  /** RF09: cancela (ou exclui, na prática) um agendamento, liberando
+   *  o horário imediatamente (regra 5 da seção 6 da documentação). */
+  function cancelarAgendamento(barbeariaId, agendamentoId) {
+    return mudarStatus(barbeariaId, agendamentoId, "CANCELADO");
+  }
+
+  /** RF18-RF21: a operação central do sistema. O barbeiro confirma
+   *  se o corte foi realizado ou não.
+   *
+   *  - "REALIZADO": gera o ponto de fidelidade (RF20), e devolve
+   *    também o saldo atualizado do cliente, para a tela decidir se
+   *    mostra "completou o cartão".
+   *  - "NAO_COMPARECEU": nada é lançado, só o registro do evento
+   *    (RF21).
+   *
+   *  Caixa, comissão e baixa de estoque (os outros três efeitos
+   *  previstos na seção 5.4 da documentação) entram nas fases 8, 9
+   *  e 11 do roadmap — ainda não existem neste protótipo. Quem
+   *  dispara esta função de verdade é js/finalizacao.js, que no
+   *  futuro vai orquestrar os quatro efeitos juntos; esta função
+   *  cuida só do agendamento e da fidelidade. */
+  function finalizarAtendimento(barbeariaId, agendamentoId, dadosFinalizacao) {
+    exigirBarbeariaId(barbeariaId);
+    const agendamento = obterAgendamento(barbeariaId, agendamentoId);
+    if (!agendamento) {
+      throw new Error("Agendamento não encontrado nesta barbearia.");
+    }
+
+    const status = dadosFinalizacao.status; // "REALIZADO" ou "NAO_COMPARECEU"
+    mudarStatus(barbeariaId, agendamentoId, status, {
+      valorCobrado: dadosFinalizacao.valorCobrado || null,
+      formaPagamento: dadosFinalizacao.formaPagamento || null,
+      finalizadoPor: dadosFinalizacao.finalizadoPor || null,
+      finalizadoEm: new Date().toISOString(),
+    });
+
+    let pontoGerado = null;
+    if (status === "REALIZADO") {
+      pontoGerado = gerarPontoFidelidade(agendamento.clienteId, agendamentoId);
+    }
+
+    return { agendamento, pontoGerado };
+  }
+
+  /* ---------------------------------------------------------------
+     Fidelidade
+     ------------------------------------------------------------- */
+
+  /** Gera 1 ponto de fidelidade para o cliente, ligado a este
+   *  agendamento. Regra 7 da seção 6: cada atendimento gera no
+   *  máximo um lançamento — aqui simulamos a restrição única do
+   *  banco (UNIQUE em agendamento_id) checando antes de inserir. */
+  function gerarPontoFidelidade(clienteId, agendamentoId) {
+    const banco = carregar();
+
+    const jaPontuado = banco.fidelidadePontos.some(
+      (p) => p.agendamentoId === agendamentoId
+    );
+    if (jaPontuado) {
+      return banco.fidelidadePontos.find((p) => p.agendamentoId === agendamentoId);
+    }
+
+    const novoPonto = {
+      id: gerarId(),
+      clienteId,
+      agendamentoId,
+      pontos: 1,
+      criadoEm: new Date().toISOString(),
+    };
+
+    banco.fidelidadePontos.push(novoPonto);
+    salvar(banco);
+    return novoPonto;
+  }
+
+  /** Saldo de um cliente = soma dos pontos ganhos − soma dos pontos
+   *  já resgatados (seção 7.6 da documentação). */
+  function saldoFidelidade(clienteId) {
+    const banco = carregar();
+
+    const ganhos = banco.fidelidadePontos
+      .filter((p) => p.clienteId === clienteId)
+      .reduce((total, p) => total + p.pontos, 0);
+
+    const usados = banco.fidelidadeResgates
+      .filter((r) => r.clienteId === clienteId)
+      .reduce((total, r) => total + r.pontosUsados, 0);
+
+    return ganhos - usados;
+  }
+
+  /** Lista, para uma barbearia, o saldo de fidelidade de todos os
+   *  clientes que já têm pelo menos 1 ponto — usada para montar o
+   *  painel "Cartão fidelidade" do dashboard, ordenado dos mais
+   *  próximos da meta para os mais distantes. */
+  function listarSaldosFidelidade(barbeariaId) {
+    exigirBarbeariaId(barbeariaId);
+    const clientesDaBarbearia = listarClientes(barbeariaId);
+
+    return clientesDaBarbearia
+      .map((cliente) => ({ cliente, saldo: saldoFidelidade(cliente.id) }))
+      .filter((item) => item.saldo > 0)
+      .sort((a, b) => b.saldo - a.saldo);
+  }
+
+  /** Resgata a recompensa de um cliente, descontando a quantidade
+   *  de pontos da meta do saldo dele (RF18 — ao atingir a meta, o
+   *  cliente recebe a recompensa e o ciclo reinicia). */
+  function resgatarFidelidade(clienteId, pontosUsados) {
+    const banco = carregar();
+
+    const novoResgate = {
+      id: gerarId(),
+      clienteId,
+      pontosUsados,
+      resgatadoEm: new Date().toISOString(),
+    };
+
+    banco.fidelidadeResgates.push(novoResgate);
+    salvar(banco);
+    return novoResgate;
+  }
+
+  /* ---------------------------------------------------------------
+     Instantâneo (snapshot) — usado só para o "Desfazer" das telas.
+     Guarda e restaura agendamentos e fidelidade de UMA barbearia,
+     sem tocar nos dados das outras.
+     ------------------------------------------------------------- */
+
+  function obterInstantaneo(barbeariaId) {
+    exigirBarbeariaId(barbeariaId);
+    const banco = carregar();
+    return {
+      agendamentos: banco.agendamentos
+        .filter((a) => a.barbeariaId === barbeariaId)
+        .map((a) => Object.assign({}, a)),
+      fidelidadePontos: banco.fidelidadePontos.map((p) => Object.assign({}, p)),
+      fidelidadeResgates: banco.fidelidadeResgates.map((r) => Object.assign({}, r)),
+    };
+  }
+
+  function restaurarInstantaneo(barbeariaId, instantaneo) {
+    exigirBarbeariaId(barbeariaId);
+    const banco = carregar();
+
+    banco.agendamentos = banco.agendamentos
+      .filter((a) => a.barbeariaId !== barbeariaId)
+      .concat(instantaneo.agendamentos);
+    banco.fidelidadePontos = instantaneo.fidelidadePontos;
+    banco.fidelidadeResgates = instantaneo.fidelidadeResgates;
+
+    salvar(banco);
+  }
+
+  /* ---------------------------------------------------------------
      API pública do módulo
      ------------------------------------------------------------- */
   return {
@@ -483,12 +839,28 @@ const Dados = (function () {
     definirHorarios,
 
     listarServicos,
+    obterServico,
     criarServico,
     atualizarServico,
     excluirServico,
 
     listarClientes,
+    obterCliente,
     buscarClientePorTelefone,
     criarOuObterCliente,
+
+    listarAgendamentos,
+    obterAgendamento,
+    criarAgendamento,
+    confirmarAgendamento,
+    cancelarAgendamento,
+    finalizarAtendimento,
+
+    saldoFidelidade,
+    listarSaldosFidelidade,
+    resgatarFidelidade,
+
+    obterInstantaneo,
+    restaurarInstantaneo,
   };
 })();
