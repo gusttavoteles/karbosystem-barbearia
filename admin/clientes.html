@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clientes e fidelidade — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <!-- Barra superior: igual à de cadastros.html, novo-agendamento.html
+       e agenda.html (ver js/admin.js) — mostra a barbearia logada e o
+       botão Sair. -->
+  <header class="barra-topo">
+    <div class="barra-topo__identidade">
+      <img src="../assets/img/icone-fundo-verde.svg" alt="Karbo Barber" style="height: 28px;" />
+      <span class="barra-topo__barbearia" id="texto-barbearia-logada">—</span>
+    </div>
+    <nav class="barra-topo__nav">
+      <a href="proximos-dias.html" class="barra-topo__link">Início</a>
+      <a href="agenda.html" class="barra-topo__link">Agenda mensal</a>
+      <a href="clientes.html" class="barra-topo__link ativo">Clientes</a>
+      <a href="cadastros.html" class="barra-topo__link">Cadastros</a>
+    </nav>
+    <button class="botao botao--secundario botao--pequeno" id="botao-sair">Sair</button>
+  </header>
+
+  <main class="pagina" style="max-width: 960px;">
+    <div style="margin-bottom: var(--espaco-5);">
+      <h1 style="margin-bottom: 4px;">Clientes e fidelidade</h1>
+      <p class="texto-secundario">RF43-RF45 — cadastro, aniversariantes do mês, histórico de atendimentos e saldo de fidelidade por cliente.</p>
+    </div>
+
+    <!-- Aniversariantes do mês (RF44) — some sozinha quando não há
+         nenhum cliente com data de nascimento neste mês. -->
+    <section class="card" id="secao-aniversariantes" style="margin-bottom: var(--espaco-5); display: none;">
+      <h2 style="margin-bottom: var(--espaco-1);">Aniversariantes do mês</h2>
+      <p class="texto-secundario" style="margin-bottom: var(--espaco-3);">Mande os parabéns pelo WhatsApp com a mensagem configurada pela barbearia.</p>
+      <div id="lista-aniversariantes"></div>
+    </section>
+
+    <div class="card">
+      <div class="flex--entre" style="flex-wrap: wrap; gap: var(--espaco-3); margin-bottom: var(--espaco-4);">
+        <h2 style="margin: 0;">Todos os clientes</h2>
+        <div class="busca-cliente">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true" style="color: var(--cor-texto-secundario);"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+          <label for="campo-busca-cliente" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0);">Buscar por nome ou telefone</label>
+          <input id="campo-busca-cliente" type="text" placeholder="Buscar por nome ou telefone" />
+        </div>
+      </div>
+      <div id="lista-clientes"></div>
+    </div>
+
+    <!-- Detalhe do cliente escolhido na lista acima: fidelidade e
+         histórico de atendimentos (RF45). Escondido até escolher um. -->
+    <section class="card" style="margin-top: var(--espaco-4); display: none;" id="secao-detalhe-cliente" aria-labelledby="titulo-detalhe-cliente">
+      <div class="detalhe-dia__titulo" style="margin-bottom: var(--espaco-3);">
+        <h2 id="titulo-detalhe-cliente" style="margin: 0;">—</h2>
+        <button type="button" class="botao botao--secundario botao--pequeno" id="botao-fechar-detalhe-cliente">Fechar</button>
+      </div>
+      <p class="texto-secundario numero-tabular" id="texto-contato-detalhe-cliente" style="margin-bottom: var(--espaco-4);">—</p>
+
+      <div class="item-fidelidade" style="margin-bottom: var(--espaco-5);">
+        <div class="flex--entre">
+          <div style="font-weight: 600;">Cartão fidelidade</div>
+          <div class="numero-tabular" id="texto-progresso-fidelidade-cliente" style="font-weight: 600;">—</div>
+        </div>
+        <div class="flex" style="gap: var(--espaco-3); margin-top: var(--espaco-2);">
+          <div class="kpi__barra" style="flex: 1;" id="barra-fidelidade-cliente" role="img" aria-label="Progresso no cartão fidelidade">
+            <div style="width: 0%;"></div>
+          </div>
+          <button type="button" class="botao botao--secundario botao--pequeno" id="botao-resgatar-fidelidade-cliente" style="display: none;">Resgatar</button>
+        </div>
+      </div>
+
+      <h3 style="margin-bottom: var(--espaco-2);">Histórico de atendimentos</h3>
+      <div id="lista-historico-cliente"></div>
+    </section>
+  </main>
+
+  <!-- Aviso (toast) de retorno, compartilhado por todas as telas do
+       painel — ver js/admin.js, mostrarToast(). -->
+  <div id="toast" class="toast" style="display: none;">
+    <span data-toast-texto></span>
+    <button data-toast-desfazer class="botao botao--secundario botao--pequeno" style="display: none;">Desfazer</button>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/agenda.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/fidelidade.js"></script>
+  <script src="../js/finalizacao.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/clientes.js"></script>
+</body>
+</html>

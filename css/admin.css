@@ -80,6 +80,23 @@
   font-size: 13px;
 }
 
+/* Variante clicável de .item-cadastro (ex.: lista de clientes em
+   admin/clientes.html, onde cada linha é um <button> que abre o
+   detalhe) — reseta a aparência padrão de botão e adiciona feedback
+   visual de hover/selecionado. */
+.item-cadastro--clicavel {
+  font: inherit;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+.item-cadastro--clicavel:hover {
+  border-color: var(--cor-primaria);
+}
+.item-cadastro--clicavel.ativo {
+  border-color: var(--cor-primaria);
+  background-color: var(--cor-primaria-fundo, var(--cor-fundo-elevado));
+}
+
 /* Lista de horários de trabalho dentro do cadastro de um barbeiro:
    um campo de início e fim por dia da semana. */
 .grade-horarios {
@@ -623,5 +640,21 @@
   }
   .menu-lateral__rodape {
     display: none;
+  }
+
+  /* Barra superior das telas sem menu lateral (cadastros.html,
+     novo-agendamento.html, agenda.html, clientes.html): com 4 itens
+     de nav, a barra não cabe mais numa linha só em telas pequenas —
+     quebra em duas linhas e deixa a nav rolar na horizontal em vez
+     de vazar a página inteira. */
+  .barra-topo {
+    flex-wrap: wrap;
+    gap: var(--espaco-2);
+  }
+  .barra-topo__nav {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 }

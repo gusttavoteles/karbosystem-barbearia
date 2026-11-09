@@ -44,6 +44,7 @@ js/cadastros.js       → lógica só da tela admin/cadastros.html
 js/dashboard.js      → lógica só da tela admin/proximos-dias.html
 js/agenda-mensal.js   → lógica só da tela admin/agenda.html (agenda mensal, ver seção 8.5)
 js/novo-agendamento.js → lógica só da tela admin/novo-agendamento.html
+js/clientes.js        → lógica só da tela admin/clientes.html (clientes e fidelidade, ver seção 8.7)
 js/cliente.js        → lógica só da tela pública cliente/agendar.html (NÃO carrega admin.js — não há sessão)
 ```
 
@@ -315,7 +316,7 @@ atendimentos.
 - **Início** — link real, leva a esta própria tela (`aria-current="page"`).
 - **Agenda mensal** — link real, leva a `admin/agenda.html` (seção 8.5).
 - **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.6).
-- **Clientes e fidelidade** — ainda não construída (fase seguinte do roadmap). É um `<button>` com `data-acao="em-construcao"`, que mostra um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
+- **Clientes e fidelidade** — link real, leva a `admin/clientes.html` (seção 8.7).
 - **Cadastros** — link real, leva a `cadastros.html`.
 - Rodapé: link público de agendamento (texto + botão **Copiar link**, que copia `window.location.origin + "/cliente/agendar.html?barbearia=" + slug` para a área de transferência via `navigator.clipboard` — **não** `/b/<slug>`; esse é o endereço "oficial" na documentação, mas como esta é uma hospedagem de arquivos estáticos sem reescrita de rota, o link real sempre aponta para `cliente/agendar.html` lendo o slug pela query string), bloco com o nome do administrador, e botão **Sair** (comportamento vem de `admin.js`).
 
@@ -441,7 +442,52 @@ precise mostrar um toast depois de redirecionar para outra página siga
 este mesmo padrão** (chave própria no `sessionStorage`, lida e
 IMEDIATAMENTE removida pela tela de destino).
 
-### 8.7 `admin/cadastros.html` + `js/cadastros.js`
+### 8.7 `admin/clientes.html` + `js/clientes.js` — clientes e fidelidade (RF43-RF45)
+
+Tela de consulta: lista todos os clientes da barbearia, com busca,
+aniversariantes do mês e, ao abrir um cliente, o progresso no cartão
+fidelidade e o histórico completo de atendimentos. **Não** cadastra
+cliente novo — isso continua na aba Clientes de `cadastros.html`
+(seção 8.8); esta tela é só para consultar quem já existe.
+
+**Barra superior:** mesmo padrão das demais telas (`.barra-topo`),
+nav com **Início** / **Agenda mensal** / **Clientes** (ativo) /
+**Cadastros**.
+
+**Aniversariantes do mês** (`#secao-aniversariantes`, RF44): lista os
+clientes com `dataNascimento` cadastrada cujo mês bate com o mês
+atual (comparando a string `"AAAA-MM-DD"` direto, sem passar por
+`Date`, para não correr risco de fuso horário mudar o dia — mesma
+precaução de `js/agenda.js`), ordenados pelo dia. Cada linha tem um
+botão **Parabenizar** que abre `Whatsapp.linkAniversario` numa nova
+aba. A seção inteira fica escondida quando não há nenhum
+aniversariante no mês.
+
+**Lista de clientes** (`#lista-clientes`): todos os clientes da
+barbearia, com busca por nome ou telefone (`#campo-busca-cliente`,
+mesmo padrão `.busca-cliente` do dashboard) e, em cada linha, um selo
+com o progresso de fidelidade (`"3/10"` ou `"Meta atingida"`). Cada
+linha é um botão: clicar nela abre o painel de detalhe; clicar de
+novo na mesma linha, ou no botão **Fechar** do painel, fecha.
+
+**Detalhe do cliente** (`#secao-detalhe-cliente`, escondido até
+escolher alguém):
+- Nome, telefone e data de nascimento (se tiver).
+- **Cartão fidelidade**: barra de progresso (mesmo `Fidelidade.progresso`
+  usado no dashboard) e botão **Resgatar** quando a meta foi atingida
+  → chama `Fidelidade.resgatar` e mostra toast **sem Desfazer** (mesma
+  decisão já tomada no painel "Cartão fidelidade" do dashboard — ver
+  pendências conhecidas na seção 10).
+- **Histórico de atendimentos**: TODOS os agendamentos daquele
+  cliente (não só os ativos — inclui `REALIZADO`, `NAO_COMPARECEU` e
+  `CANCELADO`, cada um com seu selo), do mais recente para o mais
+  antigo. Não tem ações (confirmar/cancelar/finalizar) — para isso, a
+  agenda mensal ou o dashboard.
+
+**Isolamento:** `Dados.listarClientes`/`listarAgendamentos` já
+filtram por `barbeariaId`; confirmado pelos testes da seção 10.
+
+### 8.8 `admin/cadastros.html` + `js/cadastros.js`
 
 Tela de cadastro de barbeiros, serviços e clientes, em 3 abas
 (`.abas`/`.abas__item`, uma só visível por vez via classe `.ativo`).
@@ -458,15 +504,16 @@ Todas as três abas usam o mesmo padrão: formulário no topo, submit cria
 e redesenha a lista (`renderizarBarbeiros`/`renderizarServicos`/
 `renderizarClientes`), sem recarregar a página.
 
-### 8.8 Telas ainda não construídas
+### 8.9 Telas ainda não construídas
 
 `barbeiro/` e `super-admin/` existem como pastas vazias (`.gitkeep`) —
 reservadas pela estrutura de pastas de `DOCUMENTACAO.md` §11.3, para
 as fases seguintes do roadmap (área do barbeiro e painel do
-super-admin). Dentro do painel do administrador, **"Clientes e
-fidelidade"** ainda não existe. Qualquer botão que apontaria para uma
-tela destas fases usa `data-acao="em-construcao"` em vez de um link
-quebrado.
+super-admin). Hoje, dentro do painel do administrador, todas as telas
+planejadas para esta fase já existem — não resta nenhum botão
+`data-acao="em-construcao"`. Qualquer tela nova de uma fase futura
+deve usar esse mesmo atributo em vez de um link quebrado, até existir
+de verdade.
 
 ---
 
@@ -522,17 +569,29 @@ dia ao clicar, confirmar/cancelar e finalizar (Realizado/Não
 compareceu) dentro do detalhe, filtro por barbeiro, isolamento entre
 barbearias, e regressão dos links de navegação (menu lateral, mini
 calendário, barra superior de Cadastros e Novo agendamento) que
-passaram de `data-acao="em-construcao"` para links reais. Não ficam no
-repositório como arquivo de teste permanente ainda (fase de automatizar
-testes em CI é posterior); foram escritos e rodados manualmente para
-validar este lote de trabalho.
+passaram de `data-acao="em-construcao"` para links reais. Para
+**clientes e fidelidade**: lista completa de clientes, busca por nome
+e por telefone (com aviso de busca sem resultado), abrir/fechar o
+detalhe de um cliente, gerar pontos de fidelidade atendimento por
+atendimento (via `Dados.criarAgendamento` + `Finalizacao.marcarRealizado`,
+não escrevendo pontos direto) até completar a meta e resgatar,
+aniversariantes do mês (criando um cliente com data de nascimento no
+mês atual e checando o link de WhatsApp gerado), isolamento entre
+barbearias, regressão dos links de nav nas outras telas do painel, e
+que a tela de origem (dashboard) não guarda mais nenhum botão "em
+construção" de Clientes. Não ficam no repositório como arquivo de
+teste permanente ainda (fase de automatizar testes em CI é posterior);
+foram escritos e rodados manualmente para validar este lote de
+trabalho.
 
 **Pendências conhecidas (não são bugs, são escopo de fases futuras):**
 - Excluir um barbeiro não avisa nem impede a exclusão se ele tiver
   agendamentos futuros.
-- O botão **Resgatar** fidelidade não tem Desfazer.
-- "Clientes e fidelidade" ainda não é uma tela real — mostra apenas um
-  aviso.
+- O botão **Resgatar** fidelidade não tem Desfazer (nem no dashboard,
+  nem em `admin/clientes.html`) — decisão já tomada, não esquecimento.
+- Em `admin/clientes.html` não há como cadastrar ou editar um cliente
+  (só consultar) — o cadastro continua só na aba Clientes de
+  `cadastros.html`. Juntar as duas telas é decisão de fase futura.
 - `finalizadoPor` (quem registrou a finalização) fica `null` — depende
   de autenticação real de barbeiro (fase 5).
 - O cálculo de conflito de horário (em `dados.js` e em `agenda.js`)
@@ -572,3 +631,16 @@ validar este lote de trabalho.
   (`js/agenda-mensal.js`). **Lição:** não usar `text-transform:
   capitalize` em frases com preposições/artigos em português — ele não
   distingue a primeira palavra das demais.
+- A barra superior (`.barra-topo`, usada em `cadastros.html`,
+  `novo-agendamento.html`, `agenda.html` e agora `clientes.html`)
+  nunca tinha sido testada no celular — com 3 links de nav já ficava
+  no limite, e o 4º link ("Clientes") fez a página vazar
+  horizontalmente em telas pequenas (confirmado medindo
+  `document.documentElement.scrollWidth` a 390px de largura: 490px em
+  vez de 390px). Corrigido com uma regra em
+  `@media (max-width: 900px)`: a barra quebra em duas linhas e a nav
+  passa a rolar na horizontal em vez de empurrar a página. **Lição:**
+  o teste de "sem rolagem horizontal no celular" (seção 9) só cobria
+  o dashboard (`.layout-painel`/`.menu-lateral`) — ao criar uma tela
+  nova com `.barra-topo`, testar o celular também, não só a tela que
+  acabou de ganhar o botão.
