@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Agenda mensal — Karbo Barber</title>
+  <link rel="icon" href="../assets/img/icone-fundo-verde.svg" />
+  <link rel="stylesheet" href="../css/base.css" />
+  <link rel="stylesheet" href="../css/componentes.css" />
+  <link rel="stylesheet" href="../css/admin.css" />
+</head>
+<body>
+  <!-- Barra superior: igual à de cadastros.html e novo-agendamento.html
+       (ver js/admin.js) — mostra a barbearia logada e o botão Sair. -->
+  <header class="barra-topo">
+    <div class="barra-topo__identidade">
+      <img src="../assets/img/icone-fundo-verde.svg" alt="Karbo Barber" style="height: 28px;" />
+      <span class="barra-topo__barbearia" id="texto-barbearia-logada">—</span>
+    </div>
+    <nav class="barra-topo__nav">
+      <a href="proximos-dias.html" class="barra-topo__link">Início</a>
+      <a href="agenda.html" class="barra-topo__link ativo">Agenda mensal</a>
+      <a href="cadastros.html" class="barra-topo__link">Cadastros</a>
+    </nav>
+    <button class="botao botao--secundario botao--pequeno" id="botao-sair">Sair</button>
+  </header>
+
+  <main class="pagina" style="max-width: 960px;">
+    <div class="flex--entre" style="flex-wrap: wrap; margin-bottom: var(--espaco-2);">
+      <div>
+        <h1 style="margin-bottom: 4px;">Agenda mensal</h1>
+        <p class="texto-secundario">RF07 — o mês inteiro, com filtro por barbeiro.</p>
+      </div>
+      <a href="novo-agendamento.html" class="botao botao--primario">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>
+        Novo agendamento
+      </a>
+    </div>
+
+    <!-- Filtro por barbeiro — mesmo padrão de chips do dashboard. -->
+    <div role="group" aria-label="Filtrar por barbeiro" class="chips" id="chips-barbeiro" style="margin-bottom: var(--espaco-5);"></div>
+
+    <div class="card">
+      <div class="calendario-mensal__cabecalho">
+        <button type="button" class="botao botao--secundario botao--pequeno" id="botao-mes-anterior" aria-label="Mês anterior">‹</button>
+        <h2 class="calendario-mensal__titulo" id="texto-mes-ano">—</h2>
+        <button type="button" class="botao botao--secundario botao--pequeno" id="botao-mes-proximo" aria-label="Próximo mês">›</button>
+        <button type="button" class="botao botao--secundario botao--pequeno" id="botao-mes-hoje">Hoje</button>
+      </div>
+
+      <div class="calendario-mensal__dias-semana" aria-hidden="true">
+        <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span><span>Qui</span><span>Sex</span><span>Sáb</span>
+      </div>
+      <div class="calendario-mensal__grade" id="grade-calendario-mensal"></div>
+    </div>
+
+    <!-- Detalhe do dia escolhido na grade acima. -->
+    <section class="card" style="padding: 0; margin-top: var(--espaco-4);" id="secao-detalhe-dia" aria-labelledby="titulo-detalhe-dia">
+      <div style="padding: var(--espaco-4) var(--espaco-4) 0;">
+        <div class="detalhe-dia__titulo">
+          <h2 id="titulo-detalhe-dia" style="margin: 0;">—</h2>
+          <span class="texto-secundario numero-tabular" id="texto-resumo-detalhe-dia">—</span>
+        </div>
+      </div>
+      <div id="lista-detalhe-dia"></div>
+    </section>
+  </main>
+
+  <!-- Aviso (toast) de retorno, compartilhado por todas as telas do
+       painel — ver js/admin.js, mostrarToast(). -->
+  <div id="toast" class="toast" style="display: none;">
+    <span data-toast-texto></span>
+    <button data-toast-desfazer class="botao botao--secundario botao--pequeno" style="display: none;">Desfazer</button>
+  </div>
+
+  <script src="../js/utils.js"></script>
+  <script src="../js/config.js"></script>
+  <script src="../js/dados.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/agenda.js"></script>
+  <script src="../js/whatsapp.js"></script>
+  <script src="../js/fidelidade.js"></script>
+  <script src="../js/finalizacao.js"></script>
+  <script src="../js/admin.js"></script>
+  <script src="../js/agenda-mensal.js"></script>
+</body>
+</html>

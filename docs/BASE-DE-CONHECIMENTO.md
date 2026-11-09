@@ -42,6 +42,7 @@ js/agenda.js         → cálculo de horário livre e conflito (ver seção 6.1)
 js/admin.js          → código comum a toda tela do painel (barra, toast) — ver seção 7
 js/cadastros.js       → lógica só da tela admin/cadastros.html
 js/dashboard.js      → lógica só da tela admin/proximos-dias.html
+js/agenda-mensal.js   → lógica só da tela admin/agenda.html (agenda mensal, ver seção 8.5)
 js/novo-agendamento.js → lógica só da tela admin/novo-agendamento.html
 js/cliente.js        → lógica só da tela pública cliente/agendar.html (NÃO carrega admin.js — não há sessão)
 ```
@@ -312,15 +313,16 @@ atendimentos.
 
 **Menu lateral** (`.menu-lateral`):
 - **Início** — link real, leva a esta própria tela (`aria-current="page"`).
-- **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.5).
-- **Agenda mensal**, **Clientes e fidelidade** — ainda não construídas (fases seguintes do roadmap). São `<button>` com `data-acao="em-construcao"`, que mostram um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
+- **Agenda mensal** — link real, leva a `admin/agenda.html` (seção 8.5).
+- **Novo agendamento** — link real, leva a `novo-agendamento.html` (seção 8.6).
+- **Clientes e fidelidade** — ainda não construída (fase seguinte do roadmap). É um `<button>` com `data-acao="em-construcao"`, que mostra um toast avisando que a tela é de uma fase futura, em vez de levar a um link quebrado.
 - **Cadastros** — link real, leva a `cadastros.html`.
-- Rodapé: link público de agendamento (texto + botão **Copiar link**, que copia `origin + "/b/" + slug` para a área de transferência via `navigator.clipboard`), bloco com o nome do administrador, e botão **Sair** (comportamento vem de `admin.js`).
+- Rodapé: link público de agendamento (texto + botão **Copiar link**, que copia `window.location.origin + "/cliente/agendar.html?barbearia=" + slug` para a área de transferência via `navigator.clipboard` — **não** `/b/<slug>`; esse é o endereço "oficial" na documentação, mas como esta é uma hospedagem de arquivos estáticos sem reescrita de rota, o link real sempre aponta para `cliente/agendar.html` lendo o slug pela query string), bloco com o nome do administrador, e botão **Sair** (comportamento vem de `admin.js`).
 
 **Cabeçalho** (`.cabecalho-painel`):
 - Data de hoje e saudação (Bom dia/Boa tarde/Boa noite, calculada pela hora real do navegador).
 - `#texto-resumo`: frase com quantos atendimentos aguardam finalização e quantos horários dos próximos 3 dias ainda faltam confirmar.
-- Botão **Novo agendamento** — link real para `admin/novo-agendamento.html` (seção 8.5). O mesmo link existe no menu lateral.
+- Botão **Novo agendamento** — link real para `admin/novo-agendamento.html` (seção 8.6). O mesmo link existe no menu lateral.
 
 **Filtros:**
 - **Chips de barbeiro** (`#chips-barbeiro`): "Todos" + um chip por barbeiro da barbearia logada, cada um com a contagem de atendimentos ativos e futuros daquele barbeiro. Clicar troca `estadoDashboard.barbeiroId` e redesenha a tela inteira (indicadores, lista, aguardando, calendário — tudo que depende do filtro).
@@ -351,9 +353,62 @@ atendimentos.
 
 **Mini calendário** (coluna lateral):
 - Mês atual, com cada dia colorido por intensidade conforme a quantidade de agendamentos daquele dia (considerando o filtro de barbeiro). Clicar num dia muda o resumo embaixo (`#texto-dia-selecionado` / `#texto-resumo-dia-selecionado`) — **não** muda a aba "Próximos 3 dias" acima, são seleções independentes.
-- Botão **Abrir agenda** → `data-acao="em-construcao"` (tela "Agenda mensal" ainda não construída).
+- Botão **Abrir agenda** → link real para `admin/agenda.html` (seção 8.5).
 
-### 8.5 `admin/novo-agendamento.html` + `js/novo-agendamento.js`
+### 8.5 `admin/agenda.html` + `js/agenda-mensal.js` — agenda mensal (RF07)
+
+Tela que mostra o mês inteiro em forma de calendário, com filtro por
+barbeiro. Complementa o dashboard (que só mostra 3 dias): aqui o
+administrador enxerga qualquer dia, passado ou futuro, de uma vez.
+
+**Barra superior** (`.barra-topo`, mesmo padrão de `cadastros.html` e
+`novo-agendamento.html`): nome da barbearia logada, nav com
+**Início** / **Agenda mensal** (ativo) / **Cadastros**, botão **Sair**,
+e um botão **Novo agendamento** no cabeçalho da página.
+
+**Filtro por barbeiro** (`#chips-barbeiro`): mesmo padrão de chips do
+dashboard — "Todos" + um chip por barbeiro, com a contagem de
+agendamentos ativos do mês inteiro (não só os futuros).
+
+**Calendário do mês** (`#grade-calendario-mensal`):
+- Cabeçalho com **‹** / **›** (mês anterior/próximo), o nome do mês e
+  ano (`Dados` não entra aqui — é só `Date` do navegador), e botão
+  **Hoje** (volta para o mês atual e seleciona o dia de hoje).
+- Grade de 7 colunas. Células fora do mês exibido (para completar a
+  primeira e a última semana) usam a classe `.fora-do-mes` e não são
+  clicáveis. Cada dia do mês mostra o número do dia e, se houver
+  algum agendamento ativo (`AGENDADO`/`CONFIRMADO`, filtrado por
+  barbeiro) naquele dia, um selo com a contagem
+  (`.calendario-mensal__celula__contagem`).
+- Estados visuais: `.hoje` (destaque do dia atual), `.selecionada`
+  (dia aberto no painel de detalhe abaixo), `.passado` (dias já
+  passados do mês atual, texto mais claro).
+- Clicar num dia abre/fecha o painel de detalhe daquele dia
+  (`estadoAgendaMensal.diaSelecionado`); clicar de novo no mesmo dia
+  fecha o painel.
+
+**Detalhe do dia** (`#secao-detalhe-dia`, escondido quando nenhum dia
+está selecionado): título com a data e "· hoje" se for o caso, resumo
+com a contagem, e a lista de agendamentos daquele dia (ativos,
+realizados e não comparecidos — cancelados não aparecem), reusando a
+mesma linha visual do dashboard (`.linha-agendamento`):
+- Atendimento ativo e **ainda não passou do horário**: mesmas ações do
+  dashboard — **Confirmar** (`wa.me`) + **Marcar confirmado**, ou
+  **Conversa** se já `CONFIRMADO` — e **Cancelar**.
+- Atendimento ativo e **já passou do horário** (aguardando
+  finalização): botões **Realizado** / **Não compareceu**, que chamam
+  `Finalizacao.marcarRealizado`/`marcarNaoCompareceu` exatamente como
+  no dashboard (mesmo efeito sobre o cartão fidelidade).
+- Atendimento já `REALIZADO` ou `NAO_COMPARECEU`: só o selo, sem
+  botões de ação (já foi finalizado).
+- Toda ação segue o padrão de instantâneo + toast + Desfazer (seção
+  9, regra 2).
+
+**Isolamento:** como toda consulta passa por `Dados.listarAgendamentos(
+sessaoAdmin.barbeariaId)`, trocar de barbearia (login diferente) nunca
+mistura dados — confirmado pelos testes da seção 10.
+
+### 8.6 `admin/novo-agendamento.html` + `js/novo-agendamento.js`
 
 Tela para o administrador encaixar manualmente um cliente na agenda
 (RF08), sem passar pelo link público. Aberta pelos botões **Novo
@@ -386,7 +441,7 @@ precise mostrar um toast depois de redirecionar para outra página siga
 este mesmo padrão** (chave própria no `sessionStorage`, lida e
 IMEDIATAMENTE removida pela tela de destino).
 
-### 8.6 `admin/cadastros.html` + `js/cadastros.js`
+### 8.7 `admin/cadastros.html` + `js/cadastros.js`
 
 Tela de cadastro de barbeiros, serviços e clientes, em 3 abas
 (`.abas`/`.abas__item`, uma só visível por vez via classe `.ativo`).
@@ -403,15 +458,14 @@ Todas as três abas usam o mesmo padrão: formulário no topo, submit cria
 e redesenha a lista (`renderizarBarbeiros`/`renderizarServicos`/
 `renderizarClientes`), sem recarregar a página.
 
-### 8.7 Telas ainda não construídas
+### 8.8 Telas ainda não construídas
 
-`cliente/`, `barbeiro/` e `super-admin/` existem como pastas vazias
-(`.gitkeep`) — reservadas pela estrutura de pastas de `DOCUMENTACAO.md`
-§11.3, para as fases seguintes do roadmap (fluxo público de
-agendamento, área do barbeiro, e painel do super-admin). Dentro do
-painel do administrador, "Agenda mensal" e "Clientes e fidelidade"
-também ainda não existem. Qualquer botão que apontaria para uma tela
-destas fases usa `data-acao="em-construcao"` em vez de um link
+`barbeiro/` e `super-admin/` existem como pastas vazias (`.gitkeep`) —
+reservadas pela estrutura de pastas de `DOCUMENTACAO.md` §11.3, para
+as fases seguintes do roadmap (área do barbeiro e painel do
+super-admin). Dentro do painel do administrador, **"Clientes e
+fidelidade"** ainda não existe. Qualquer botão que apontaria para uma
+tela destas fases usa `data-acao="em-construcao"` em vez de um link
 quebrado.
 
 ---
@@ -461,17 +515,24 @@ fidelidade, completar o cartão e resgatar, calendário, copiar link,
 botões "em construção", **isolamento entre barbearias** (trocar de
 barbearia não mostra nenhum dado da anterior) e que a tela de Cadastros
 continua funcionando depois da separação de `admin.js` em
-`admin.js`/`cadastros.js`/`dashboard.js`. Não ficam no repositório como
-arquivo de teste permanente ainda (fase de automatizar testes em CI é
-posterior); foram escritos e rodados manualmente para validar este
-lote de trabalho.
+`admin.js`/`cadastros.js`/`dashboard.js`. Para a **agenda mensal**:
+navegação de mês (anterior/próximo/hoje), título do mês (sem capitalizar
+"de" junto), badge de contagem por dia, abrir/fechar o detalhe de um
+dia ao clicar, confirmar/cancelar e finalizar (Realizado/Não
+compareceu) dentro do detalhe, filtro por barbeiro, isolamento entre
+barbearias, e regressão dos links de navegação (menu lateral, mini
+calendário, barra superior de Cadastros e Novo agendamento) que
+passaram de `data-acao="em-construcao"` para links reais. Não ficam no
+repositório como arquivo de teste permanente ainda (fase de automatizar
+testes em CI é posterior); foram escritos e rodados manualmente para
+validar este lote de trabalho.
 
 **Pendências conhecidas (não são bugs, são escopo de fases futuras):**
 - Excluir um barbeiro não avisa nem impede a exclusão se ele tiver
   agendamentos futuros.
 - O botão **Resgatar** fidelidade não tem Desfazer.
-- "Agenda mensal" e "Clientes e fidelidade" ainda não são telas reais —
-  mostram apenas um aviso.
+- "Clientes e fidelidade" ainda não é uma tela real — mostra apenas um
+  aviso.
 - `finalizadoPor` (quem registrou a finalização) fica `null` — depende
   de autenticação real de barbeiro (fase 5).
 - O cálculo de conflito de horário (em `dados.js` e em `agenda.js`)
@@ -502,3 +563,12 @@ lote de trabalho.
   ... }` no final do arquivo — e testar chamando-a de uma tela, não só
   de rodar `node --check` (que só confere sintaxe, não a lista de
   exportação).
+- Na agenda mensal, o título do mês usava `text-transform: capitalize`
+  em CSS para maiusculizar a primeira letra (ex.: "novembro de 2026" →
+  "Novembro de 2026"). `capitalize` maiusculiza a primeira letra de
+  **cada palavra**, não só a primeira do texto — o resultado real era
+  "Novembro De 2026". Corrigido removendo o `text-transform` e
+  maiusculizando só a primeira letra em JavaScript
+  (`js/agenda-mensal.js`). **Lição:** não usar `text-transform:
+  capitalize` em frases com preposições/artigos em português — ele não
+  distingue a primeira palavra das demais.
